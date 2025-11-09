@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AddAnime from './pages/AddAnime';
 import './App.css';
 
 // Composant pour protéger les routes
@@ -44,6 +45,11 @@ function AppRoutes() {
       <Route path="/" element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/add-anime" element={
+        <ProtectedRoute>
+          <AddAnime />
         </ProtectedRoute>
       } />
     </Routes>

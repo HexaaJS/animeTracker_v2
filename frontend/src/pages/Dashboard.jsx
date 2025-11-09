@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAllAnimes, deleteAnime, updateProgress } from '../services/animeService';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -70,7 +72,7 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1>🎌 Anime Tracker</h1>
+                <h1>Anime Tracker</h1>
                 <div className="header-right">
                     <span className="username">Bonjour, {user?.username} !</span>
                     <button onClick={logout} className="btn-logout">Déconnexion</button>
@@ -121,7 +123,7 @@ const Dashboard = () => {
                     />
                 </div>
 
-                <button className="btn-add" onClick={() => alert('Fonctionnalité à venir !')}>
+                <button className="btn-add" onClick={() => navigate('/add-anime')}>
                     + Ajouter un anime
                 </button>
             </div>
@@ -133,7 +135,7 @@ const Dashboard = () => {
                 ) : filteredAnimes.length === 0 ? (
                     <div className="empty-state">
                         <p>Aucun anime trouvé</p>
-                        <button className="btn-primary" onClick={() => alert('Fonctionnalité à venir !')}>
+                        <button className="btn-primary" onClick={() => navigate('/add-anime')}>
                             Ajouter votre premier anime
                         </button>
                     </div>
