@@ -50,7 +50,7 @@ const Setup = () => {
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <h1>🎌 Anime Tracker</h1>
+                <h1>Anime Tracker</h1>
                 <h2>Bienvenue !</h2>
                 <p className="setup-subtitle">Entre ton pseudo pour commencer</p>
 

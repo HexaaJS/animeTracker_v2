@@ -8,6 +8,7 @@ import AddAnime from './pages/AddAnime';
 import EditAnime from './pages/EditAnime';
 import Profile from './pages/Profile';
 import './App.css';
+import Footer from './components/Footer';
 
 // Composant pour protéger les routes
 const ProtectedRoute = ({ children }) => {
@@ -71,6 +72,7 @@ function App() {
           <AppRoutes />
         </Router>
       </AuthProvider>
+      <Footer />
     </ThemeProvider>
   );
 }

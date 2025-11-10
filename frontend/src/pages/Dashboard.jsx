@@ -134,7 +134,7 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1>Anime Tracker</h1>
+                <h1 className='logo'>Anime Tracker</h1>
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
                         {user?.username}
@@ -235,7 +235,7 @@ const Dashboard = () => {
                                         <h3>{anime.title}</h3>
                                         <div
                                             className="anime-status"
-                                            style={{ background: getStatusColor(anime.status), color: '#fff' }}
+                                            style={{ background: getStatusColor(anime.status) }}
                                         >
                                             {anime.status}
                                         </div>

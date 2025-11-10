@@ -10,6 +10,37 @@ export const useTheme = () => {
     return context;
 };
 
+// --- Utils: calcul d'une couleur de texte lisible (noir/blanc) ---
+function hexToRgb(hex) {
+    const sanitized = hex.replace('#', '');
+    const bigint = parseInt(sanitized.length === 3
+        ? sanitized.split('').map(c => c + c).join('')
+        : sanitized, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return { r, g, b };
+}
+
+// Luminance relative (WCAG)
+function relativeLuminance({ r, g, b }) {
+    const srgb = [r, g, b].map(v => v / 255);
+    const lin = srgb.map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+}
+
+// Choix texte: blanc si primaire sombre, noir si primaire clair
+function getReadableTextColor(primaryHex) {
+    try {
+        const lum = relativeLuminance(hexToRgb(primaryHex));
+        // Seuil empirique ~0.4 pour équilibrer; ajuste si besoin
+        return lum > 0.4 ? '#111111' : '#FFFFFF';
+    } catch {
+        // fallback raisonnable
+        return '#FFFFFF';
+    }
+}
+
 // Thèmes disponibles
 export const themes = {
     purpleDream: {
@@ -201,7 +232,6 @@ export const themes = {
         secondary: '#dd2476',
         emoji: '🌇'
     }
-
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -216,15 +246,20 @@ export const ThemeProvider = ({ children }) => {
         } else {
             applyTheme('purpleDream');
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Appliquer le thème via CSS variables
     const applyTheme = (themeName) => {
         const theme = themes[themeName];
         if (theme) {
-            document.documentElement.style.setProperty('--gradient', theme.gradient);
-            document.documentElement.style.setProperty('--primary-color', theme.primary);
-            document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+            const textColor = theme.text || getReadableTextColor(theme.primary);
+
+            const root = document.documentElement;
+            root.style.setProperty('--gradient', theme.gradient);
+            root.style.setProperty('--primary-color', theme.primary);
+            root.style.setProperty('--secondary-color', theme.secondary);
+            root.style.setProperty('--text-color', textColor);
         }
     };
 

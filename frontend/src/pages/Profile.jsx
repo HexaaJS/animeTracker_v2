@@ -98,7 +98,7 @@ const Profile = () => {
                         <div className="profile-id">
                             <span>ID: {user?.userId}</span>
                             <button onClick={copyId} className="btn-copy-small">
-                                📋
+                                copy
                             </button>
                         </div>
                         <p className="member-since">
@@ -137,27 +137,18 @@ const Profile = () => {
                 {/* Stats principales */}
                 <div className="stats-grid">
                     <div className="stat-card">
-                        <div className="stat-icon">📚</div>
                         <div className="stat-value">{stats.total}</div>
                         <div className="stat-label">Animes totaux</div>
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-icon">📺</div>
                         <div className="stat-value">{stats.episodesVus}</div>
                         <div className="stat-label">Épisodes vus</div>
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-icon">⏱️</div>
                         <div className="stat-value">{stats.tempsEstime}h</div>
                         <div className="stat-label">Temps passé</div>
-                    </div>
-
-                    <div className="stat-card">
-                        <div className="stat-icon">⭐</div>
-                        <div className="stat-value">{stats.moyenneNote || 'N/A'}</div>
-                        <div className="stat-label">Note moyenne</div>
                     </div>
                 </div>
 
@@ -165,7 +156,7 @@ const Profile = () => {
                 <div className="charts-container">
                     {/* Graphique en anneau - Statuts */}
                     <div className="chart-card">
-                        <h3>📊 Répartition par statut</h3>
+                        <h3>Répartition par statut</h3>
                         {statusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
@@ -193,7 +184,7 @@ const Profile = () => {
 
                     {/* Top genres */}
                     <div className="chart-card">
-                        <h3>🎭 Top 5 genres préférés</h3>
+                        <h3>Top 5 genres préférés</h3>
                         {topGenres.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={topGenres}>
@@ -212,7 +203,7 @@ const Profile = () => {
 
                 {/* Détails par statut */}
                 <div className="status-details">
-                    <h3>📋 Détails par statut</h3>
+                    <h3>Détails par statut</h3>
                     <div className="status-bars">
                         {statusData.map((status) => (
                             <div key={status.name} className="status-bar-item">

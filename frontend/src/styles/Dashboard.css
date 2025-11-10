@@ -30,11 +30,15 @@
     font-weight: 500;
 }
 
+.logo {
+    color: var(--text-color, #111);
+}
+
 .btn-profile {
     padding: 8px 20px;
     background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid white;
+    color: var(--text-color, #111);
+    border: 2px solid var(--text-color, #111);
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -42,8 +46,9 @@
 }
 
 .btn-profile:hover {
-    background-color: white;
-    color: #667eea;
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    ;
+    color: var(--text-color, #111);
 }
 
 .btn-logout {
@@ -92,7 +97,7 @@
 
 .filters button.active {
     background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
+    color: var(--text-color, #111);
     border-color: transparent;
 }
 
@@ -103,7 +108,7 @@
 .filters button[data-status="En cours"]:hover {
     background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     border-color: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
+    color: var(--text-color, #111);
 }
 
 .filters button[data-status="Terminé"].active {
@@ -113,7 +118,7 @@
 .filters button[data-status="Terminé"]:hover {
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     border-color: #16a34a;
-    color: white;
+    color: var(--text-color, #111);
 }
 
 .filters button[data-status="A voir"].active {
@@ -123,7 +128,7 @@
 .filters button[data-status="A voir"]:hover {
     background: #FF9800;
     border-color: #FF9800;
-    color: white;
+    color: var(--text-color, #111);
 }
 
 .filters button[data-status="En pause"].active {
@@ -133,7 +138,7 @@
 .filters button[data-status="En pause"]:hover {
     background: #9E9E9E;
     border-color: #9E9E9E;
-    color: #fff;
+    color: var(--text-color, #111);
 }
 
 .filters button[data-status="Abandonné"].active {
@@ -143,7 +148,7 @@
 .filters button[data-status="Abandonné"]:hover {
     background: #F44336;
     border-color: #F44336;
-    color: #fff;
+    color: var(--text-color, #111);
 }
 
 .filters button[data-status="all"].active {
@@ -177,7 +182,7 @@
 .btn-add {
     padding: 10px 20px;
     background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
+    color: var(--text-color, #111);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -299,7 +304,7 @@
     display: inline-block;
     padding: 5px 12px;
     border-radius: 20px;
-    color: white;
+    color: var(--text-color, #111);
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 15px;

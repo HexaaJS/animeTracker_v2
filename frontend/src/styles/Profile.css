@@ -45,7 +45,7 @@
     height: 100px;
     border-radius: 50%;
     background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
+    color: var(--text-color, #111);
     font-size: 48px;
     font-weight: 700;
     display: flex;
@@ -84,7 +84,7 @@
 .btn-copy-small {
     padding: 4px 8px;
     background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
+    color: var(--text-color, #111);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -178,7 +178,7 @@
     padding: 25px;
     border-radius: 12px;
     text-align: center;
-    color: white;
+    color: var(--text-color, #111);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     transition: transform 0.3s;
 }
