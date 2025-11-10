@@ -50,7 +50,7 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     border-radius: 15px;
     transition: width 0.2s ease;
     position: relative;
@@ -87,7 +87,8 @@
 .btn-control {
     width: 35px;
     height: 35px;
-    border: 2px solid #667eea;
+    border: 2px solid var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    ;
     background: white;
     color: #667eea;
     border-radius: 50%;
@@ -101,9 +102,8 @@
 }
 
 .btn-control:hover:not(:disabled) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
-    transform: scale(1.1);
 }
 
 .btn-control:disabled {

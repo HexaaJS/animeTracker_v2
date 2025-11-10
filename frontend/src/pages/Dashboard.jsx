@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getAllAnimes, deleteAnime, updateProgress, updateAnime } from '../services/animeService';
 import ProgressBar from '../components/ProgressBar';
 import '../styles/Dashboard.css';
+import { Edit, Pause, X, Trash2, Search } from 'lucide-react';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
@@ -13,7 +14,6 @@ const Dashboard = () => {
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Charger les animes au montage
     useEffect(() => {
         fetchAnimes();
     }, [filter]);
@@ -116,7 +116,7 @@ const Dashboard = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'En cours':
-                return 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+                return getComputedStyle(document.documentElement).getPropertyValue('--gradient').trim() || 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
             case 'Terminé':
                 return 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
             case 'A voir':
@@ -134,7 +134,7 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1>🎌 Anime Tracker</h1>
+                <h1>Anime Tracker</h1>
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
                         {user?.username}
@@ -148,39 +148,52 @@ const Dashboard = () => {
                     <button
                         className={filter === 'all' ? 'active' : ''}
                         onClick={() => setFilter('all')}
+                        data-status="all"
                     >
                         Tous
                     </button>
                     <button
                         className={filter === 'En cours' ? 'active' : ''}
                         onClick={() => setFilter('En cours')}
+                        data-status="En cours"
                     >
                         En cours
                     </button>
                     <button
                         className={filter === 'A voir' ? 'active' : ''}
                         onClick={() => setFilter('A voir')}
+                        data-status="A voir"
                     >
                         À voir
                     </button>
                     <button
                         className={filter === 'Terminé' ? 'active' : ''}
                         onClick={() => setFilter('Terminé')}
+                        data-status="Terminé"
                     >
                         Terminé
                     </button>
                     <button
                         className={filter === 'En pause' ? 'active' : ''}
                         onClick={() => setFilter('En pause')}
+                        data-status="En pause"
                     >
                         En pause
+                    </button>
+                    <button
+                        className={filter === 'Abandonné' ? 'active' : ''}
+                        onClick={() => setFilter('Abandonné')}
+                        data-status="Abandonné"
+                    >
+                        Abandonné
                     </button>
                 </div>
 
                 <div className="search-box">
+                    <Search color='gray' size={16} />
                     <input
                         type="text"
-                        placeholder="🔍 Rechercher un anime..."
+                        placeholder="Rechercher un anime..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -240,18 +253,31 @@ const Dashboard = () => {
                                             <button
                                                 className="btn-edit"
                                                 onClick={() => navigate(`/edit-anime/${anime._id}`)}
+                                                title="Modifier"
                                             >
-                                                ✏️
+                                                <Edit size={18} />
                                             </button>
-                                            <button className="btn-pause" onClick={() => handlePause(anime._id)}>⏸️</button>
+                                            <button
+                                                className="btn-pause"
+                                                onClick={() => handlePause(anime._id)}
+                                                title="Mettre en pause"
+                                            >
+                                                <Pause size={18} />
+                                            </button>
                                             <button
                                                 className="btn-abandon"
                                                 onClick={() => handleAbandon(anime._id)}
                                                 title="Abandonner"
                                             >
-                                                ❌
+                                                <X size={18} />
                                             </button>
-                                            <button className="btn-delete" onClick={() => handleDelete(anime._id)}>🗑️</button>
+                                            <button
+                                                className="btn-delete"
+                                                onClick={() => handleDelete(anime._id)}
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

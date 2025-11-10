@@ -5,7 +5,7 @@
 
 /* Header */
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     padding: 20px 40px;
     display: flex;
@@ -89,38 +89,94 @@
     transition: all 0.3s;
 }
 
-.filters button:hover {
-    border-color: #667eea;
-    color: #667eea;
-}
 
 .filters button.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     border-color: transparent;
+}
+
+.filters button[data-status="En cours"].active {
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+.filters button[data-status="En cours"]:hover {
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    border-color: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    color: white;
+}
+
+.filters button[data-status="Terminé"].active {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.filters button[data-status="Terminé"]:hover {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-color: #16a34a;
+    color: white;
+}
+
+.filters button[data-status="A voir"].active {
+    background: #FF9800;
+}
+
+.filters button[data-status="A voir"]:hover {
+    background: #FF9800;
+    border-color: #FF9800;
+    color: white;
+}
+
+.filters button[data-status="En pause"].active {
+    background: #9E9E9E;
+}
+
+.filters button[data-status="En pause"]:hover {
+    background: #9E9E9E;
+    border-color: #9E9E9E;
+    color: #fff;
+}
+
+.filters button[data-status="Abandonné"].active {
+    background: #F44336;
+}
+
+.filters button[data-status="Abandonné"]:hover {
+    background: #F44336;
+    border-color: #F44336;
+    color: #fff;
+}
+
+.filters button[data-status="all"].active {
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
 }
 
 .search-box {
     flex: 1;
     min-width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    padding-left: 20px;
+
 }
 
 .search-box input {
     width: 100%;
     padding: 10px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
     font-size: 14px;
+    border-color: transparent;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: transparent;
 }
 
 .btn-add {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     border: none;
     border-radius: 6px;
@@ -159,7 +215,7 @@
 
 .btn-primary {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     border: none;
     border-radius: 6px;
@@ -175,22 +231,20 @@
     gap: 25px;
 }
 
-/* Carte + effet cinéma */
+/* Carte anime avec effet blur */
 .anime-card {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
-    transition: transform .3s, box-shadow .3s;
-    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 640px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
-.anime-card-inner {
-    position: relative;
-    overflow: hidden;
-}
-
-/* --- le fond flou aux couleurs de l'image --- */
+/* Le fond blur aux couleurs de l'image */
 .anime-bg-blur {
     position: absolute;
     inset: 0;
@@ -210,29 +264,31 @@
     mix-blend-mode: overlay;
 }
 
-/* --- l'image au premier plan --- */
+/* L'image au premier plan */
 .anime-cover {
     width: 100%;
-    height: auto;
+    height: 400px;
+    object-fit: cover;
     display: block;
     position: relative;
     z-index: 1;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* --- contenu au-dessus --- */
+/* Contenu au-dessus */
 .anime-content {
     position: relative;
     z-index: 2;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.45);
+    padding: 20px 20px 25px 20px;
+    background: rgba(0, 0, 0, 0.6);
     color: white;
-    backdrop-filter: blur(6px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-
-/* Typo & éléments dans le panneau sombre */
 .anime-content h3 {
     margin: 0 0 15px 0;
     font-size: 20px;
@@ -247,12 +303,12 @@
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 15px;
+    align-self: flex-start;
 }
 
 .anime-progress {
     margin-bottom: 15px;
     color: #e5e7eb;
-    /* gris clair lisible sur sombre */
     font-size: 14px;
 }
 
@@ -264,7 +320,6 @@
     margin-bottom: 10px;
     font-size: 16px;
     color: #FFB020;
-    /* légèrement plus chaud sur fond sombre */
 }
 
 .anime-notes {
@@ -275,14 +330,19 @@
     border-radius: 6px;
     font-size: 13px;
     color: #f1f5f9;
+    max-height: 70px;
+    overflow-y: auto;
 }
 
 .anime-actions {
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
     align-items: center;
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: auto;
 }
 
 .episode-input {
@@ -306,27 +366,30 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 20px;
     transition: transform 0.2s;
+    background-color: transparent;
 }
 
 .btn-edit {
-    background-color: #2196F3;
-    color: #fff;
+    color: #2196F3;
 }
 
 .btn-pause {
-    background-color: #9E9E9E;
-    color: #fff;
+    color: #9E9E9E;
+}
+
+.btn-abandon {
+    color: #FF9800;
 }
 
 .btn-delete {
-    background-color: #F44336;
-    color: #fff;
+    color: #F44336;
 }
 
 .btn-edit:hover,
 .btn-pause:hover,
+.btn-abandon:hover,
 .btn-delete:hover {
     transform: scale(1.1);
 }
@@ -356,15 +419,24 @@
     .animes-grid {
         grid-template-columns: 1fr;
     }
+
+    .anime-card {
+        height: auto;
+    }
+
+    .anime-cover {
+        height: 300px;
+    }
 }
 
-/* Accessibilité / confort */
+/* Accessibilité */
 @media (prefers-reduced-motion: reduce) {
 
     .anime-card,
     .btn-add,
     .btn-edit,
     .btn-pause,
+    .btn-abandon,
     .btn-delete {
         transition: none;
     }

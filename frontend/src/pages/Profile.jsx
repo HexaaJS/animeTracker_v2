@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { getAllAnimesForStats } from '../services/animeService';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import '../styles/Profile.css';
 
 const Profile = () => {
     const { user, logout } = useAuth();
+    const { currentTheme, changeTheme, themes } = useTheme();
     const navigate = useNavigate();
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,35 +40,6 @@ const Profile = () => {
         alert('ID copié dans le presse-papiers !');
     };
 
-    // juste au-dessus de statusData
-    const STATUS_STYLES = {
-        'En cours': {
-            bg: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-            color: '#667eea',
-            gradId: 'grad-en-cours',
-            stops: ['#667eea', '#764ba2'],
-        },
-        'Terminé': {
-            bg: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
-            color: '#16a34a',
-            gradId: 'grad-termine',
-            stops: ['#22c55e', '#16a34a'],
-        },
-        'A voir': {
-            bg: '#FF9800',
-            color: '#FF9800',
-        },
-        'En pause': {
-            bg: '#9E9E9E',
-            color: '#9E9E9E',
-        },
-        'Abandonné': {
-            bg: '#F44336',
-            color: '#F44336',
-        },
-    };
-
-
     // Calcul des stats
     const stats = {
         total: animes.length,
@@ -84,13 +57,12 @@ const Profile = () => {
 
     // Données pour le graphique en anneau (statuts)
     const statusData = [
-        { name: 'En cours', value: stats.enCours, color: STATUS_STYLES['En cours'].color, bg: STATUS_STYLES['En cours'].bg },
-        { name: 'Terminé', value: stats.termine, color: STATUS_STYLES['Terminé'].color, bg: STATUS_STYLES['Terminé'].bg },
-        { name: 'A voir', value: stats.aVoir, color: STATUS_STYLES['A voir'].color, bg: STATUS_STYLES['A voir'].bg },
-        { name: 'En pause', value: stats.enPause, color: STATUS_STYLES['En pause'].color, bg: STATUS_STYLES['En pause'].bg },
-        { name: 'Abandonné', value: stats.abandonne, color: STATUS_STYLES['Abandonné'].color, bg: STATUS_STYLES['Abandonné'].bg },
+        { name: 'En cours', value: stats.enCours, color: '#4CAF50' },
+        { name: 'Terminé', value: stats.termine, color: '#2196F3' },
+        { name: 'À voir', value: stats.aVoir, color: '#FF9800' },
+        { name: 'En pause', value: stats.enPause, color: '#9E9E9E' },
+        { name: 'Abandonné', value: stats.abandonne, color: '#F44336' }
     ].filter(item => item.value > 0);
-
 
     // Top 5 genres
     const genresCount = {};
@@ -126,7 +98,7 @@ const Profile = () => {
                         <div className="profile-id">
                             <span>ID: {user?.userId}</span>
                             <button onClick={copyId} className="btn-copy-small">
-                                copy
+                                📋
                             </button>
                         </div>
                         <p className="member-since">
@@ -139,24 +111,51 @@ const Profile = () => {
                     </div>
                 </div>
 
+                {/* Sélecteur de thème */}
+                <div className="theme-section">
+                    <h3>Thème</h3>
+                    <div className="theme-grid">
+                        {Object.entries(themes).map(([key, theme]) => (
+                            <div
+                                key={key}
+                                className={`theme-card ${currentTheme === key ? 'active' : ''}`}
+                                onClick={() => changeTheme(key)}
+                            >
+                                <div
+                                    className="theme-preview"
+                                    style={{ background: theme.gradient }}
+                                />
+                                <div className="theme-info">
+                                    <span className="theme-emoji">{theme.emoji}</span>
+                                    <span className="theme-name">{theme.name}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Stats principales */}
                 <div className="stats-grid">
                     <div className="stat-card">
+                        <div className="stat-icon">📚</div>
                         <div className="stat-value">{stats.total}</div>
                         <div className="stat-label">Animes totaux</div>
                     </div>
 
                     <div className="stat-card">
+                        <div className="stat-icon">📺</div>
                         <div className="stat-value">{stats.episodesVus}</div>
                         <div className="stat-label">Épisodes vus</div>
                     </div>
 
                     <div className="stat-card">
+                        <div className="stat-icon">⏱️</div>
                         <div className="stat-value">{stats.tempsEstime}h</div>
                         <div className="stat-label">Temps passé</div>
                     </div>
 
                     <div className="stat-card">
+                        <div className="stat-icon">⭐</div>
                         <div className="stat-value">{stats.moyenneNote || 'N/A'}</div>
                         <div className="stat-label">Note moyenne</div>
                     </div>
@@ -166,21 +165,10 @@ const Profile = () => {
                 <div className="charts-container">
                     {/* Graphique en anneau - Statuts */}
                     <div className="chart-card">
-                        <h3>Répartition par statut</h3>
+                        <h3>📊 Répartition par statut</h3>
                         {statusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
-                                    <defs>
-                                        <linearGradient id="grad-en-cours" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#667eea" />
-                                            <stop offset="100%" stopColor="#764ba2" />
-                                        </linearGradient>
-                                        <linearGradient id="grad-termine" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#22c55e" />
-                                            <stop offset="100%" stopColor="#16a34a" />
-                                        </linearGradient>
-                                    </defs>
-
                                     <Pie
                                         data={statusData}
                                         cx="50%"
@@ -191,18 +179,13 @@ const Profile = () => {
                                         dataKey="value"
                                         label={({ name, value }) => `${name}: ${value}`}
                                     >
-                                        {statusData.map((entry, index) => {
-                                            const fill =
-                                                entry.name === 'En cours' ? 'url(#grad-en-cours)' :
-                                                    entry.name === 'Terminé' ? 'url(#grad-termine)' :
-                                                        entry.color;
-                                            return <Cell key={`cell-${index}`} fill={fill} />;
-                                        })}
+                                        {statusData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
                                     </Pie>
                                     <Tooltip />
                                 </PieChart>
                             </ResponsiveContainer>
-
                         ) : (
                             <p className="no-data">Aucune donnée disponible</p>
                         )}
@@ -210,7 +193,7 @@ const Profile = () => {
 
                     {/* Top genres */}
                     <div className="chart-card">
-                        <h3>Top 5 genres préférés</h3>
+                        <h3>🎭 Top 5 genres préférés</h3>
                         {topGenres.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={topGenres}>
@@ -229,7 +212,7 @@ const Profile = () => {
 
                 {/* Détails par statut */}
                 <div className="status-details">
-                    <h3>Détails par statut</h3>
+                    <h3>📋 Détails par statut</h3>
                     <div className="status-bars">
                         {statusData.map((status) => (
                             <div key={status.name} className="status-bar-item">
@@ -242,10 +225,9 @@ const Profile = () => {
                                         className="status-bar-fill"
                                         style={{
                                             width: `${(status.value / stats.total) * 100}%`,
-                                            background: status.bg, // ✅ gradient ou couleur solide
+                                            backgroundColor: status.color
                                         }}
                                     />
-
                                 </div>
                             </div>
                         ))}

@@ -1,6 +1,6 @@
 .profile-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     padding: 40px 20px;
 }
 
@@ -44,7 +44,7 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     font-size: 48px;
     font-weight: 700;
@@ -83,7 +83,7 @@
 
 .btn-copy-small {
     padding: 4px 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     color: white;
     border: none;
     border-radius: 4px;
@@ -102,6 +102,69 @@
     margin: 0;
 }
 
+/* Section Thèmes */
+.theme-section {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+}
+
+.theme-section h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.theme-card {
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-card.active {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.theme-preview {
+    height: 80px;
+    width: 100%;
+}
+
+.theme-info {
+    padding: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.theme-emoji {
+    font-size: 24px;
+}
+
+.theme-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
 /* Stats Grid */
 .stats-grid {
     display: grid;
@@ -111,7 +174,7 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     padding: 25px;
     border-radius: 12px;
     text-align: center;
