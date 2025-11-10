@@ -1,121 +1,69 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const { customAlphabet } = require('nanoid');
 
-// Générer un token JWT
-const generateToken = (userId) => {
-    return jwt.sign(
-        { userId },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-    );
-};
+// Générer un ID unique de 8 caractères
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
 
-// Inscription
-const register = async (req, res) => {
+// Créer ou récupérer un utilisateur par pseudo
+const getOrCreateUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username } = req.body;
 
         // Validation
-        if (!username || !email || !password) {
+        if (!username || !username.trim()) {
             return res.status(400).json({
                 success: false,
-                message: 'Tous les champs sont requis'
+                message: 'Le pseudo est requis'
             });
         }
+
+        const trimmedUsername = username.trim();
 
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await User.findOne({
-            $or: [{ email }, { username }]
-        });
+        let user = await User.findOne({ username: trimmedUsername });
 
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: existingUser.email === email
-                    ? 'Cet email est déjà utilisé'
-                    : 'Ce nom d\'utilisateur est déjà pris'
+        if (user) {
+            // Utilisateur existe déjà
+            return res.json({
+                success: true,
+                message: 'Bienvenue !',
+                data: user
             });
         }
 
-        // Créer l'utilisateur
-        const user = new User({ username, email, password });
+        // Créer un nouvel utilisateur
+        const userId = nanoid();
+        user = new User({
+            username: trimmedUsername,
+            userId
+        });
         await user.save();
-
-        // Générer le token
-        const token = generateToken(user._id);
 
         res.status(201).json({
             success: true,
-            message: 'Inscription réussie',
-            data: {
-                user: user.toJSON(),
-                token
-            }
+            message: 'Profil créé avec succès !',
+            data: user
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Erreur lors de l\'inscription'
-        });
-    }
-};
-
-// Connexion
-const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // Validation
-        if (!email || !password) {
+        if (error.code === 11000) {
             return res.status(400).json({
                 success: false,
-                message: 'Email et mot de passe requis'
+                message: 'Ce pseudo est déjà utilisé'
             });
         }
-
-        // Trouver l'utilisateur
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
-            });
-        }
-
-        // Vérifier le mot de passe
-        const isPasswordValid = await user.comparePassword(password);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
-            });
-        }
-
-        // Générer le token
-        const token = generateToken(user._id);
-
-        res.json({
-            success: true,
-            message: 'Connexion réussie',
-            data: {
-                user: user.toJSON(),
-                token
-            }
-        });
-    } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message || 'Erreur lors de la connexion'
+            message: error.message || 'Erreur lors de la création du profil'
         });
     }
 };
 
-// Obtenir le profil
+// Obtenir le profil par username
 const getProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.userId).select('-password');
+        const { username } = req.params;
+
+        const user = await User.findOne({ username });
 
         if (!user) {
             return res.status(404).json({
@@ -137,7 +85,6 @@ const getProfile = async (req, res) => {
 };
 
 module.exports = {
-    register,
-    login,
+    getOrCreateUser,
     getProfile
 };

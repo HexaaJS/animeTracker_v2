@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAllAnimes, deleteAnime, updateProgress } from '../services/animeService';
+import ProgressBar from '../components/ProgressBar';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -72,9 +73,11 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1>Anime Tracker</h1>
+                <h1>🎌 Anime Tracker</h1>
                 <div className="header-right">
-                    <span className="username">Bonjour, {user?.username} !</span>
+                    <button onClick={() => navigate('/profile')} className="btn-profile">
+                        👤 {user?.username}
+                    </button>
                     <button onClick={logout} className="btn-logout">Déconnexion</button>
                 </div>
             </header>
@@ -177,15 +180,14 @@ const Dashboard = () => {
                                         </div>
                                     )}
 
+                                    <ProgressBar
+                                        currentEpisode={anime.currentEpisode}
+                                        totalEpisodes={anime.totalEpisodes}
+                                        onUpdate={handleProgressUpdate}
+                                        animeId={anime._id}
+                                    />
+
                                     <div className="anime-actions">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            max={anime.totalEpisodes || 9999}
-                                            value={anime.currentEpisode}
-                                            onChange={(e) => handleProgressUpdate(anime._id, e.target.value)}
-                                            className="episode-input"
-                                        />
                                         <button
                                             className="btn-edit"
                                             onClick={() => alert('Fonctionnalité à venir !')}

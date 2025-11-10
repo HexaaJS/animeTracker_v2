@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile } = require('../controllers/userController');
-const authMiddleware = require('../middleware/auth');
+const { getOrCreateUser, getProfile } = require('../controllers/userController');
 
-// Routes publiques
-router.post('/register', register);
-router.post('/login', login);
+// Route pour créer ou récupérer un utilisateur
+router.post('/setup', getOrCreateUser);
 
-// Routes protégées (nécessite authentification)
-router.get('/profile', authMiddleware, getProfile);
+// Route pour obtenir le profil par username
+router.get('/profile/:username', getProfile);
 
 module.exports = router;

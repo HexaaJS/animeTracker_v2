@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Setup from './pages/Setup';
 import Dashboard from './pages/Dashboard';
 import AddAnime from './pages/AddAnime';
+import Profile from './pages/Profile';
 import './App.css';
 
 // Composant pour protéger les routes
@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
     return <div className="loading">Chargement...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/setup" />;
 };
 
 // Composant pour les routes publiques (si déjà connecté, rediriger)
@@ -32,14 +32,9 @@ const PublicRoute = ({ children }) => {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={
+      <Route path="/setup" element={
         <PublicRoute>
-          <Login />
-        </PublicRoute>
-      } />
-      <Route path="/register" element={
-        <PublicRoute>
-          <Register />
+          <Setup />
         </PublicRoute>
       } />
       <Route path="/" element={
@@ -50,6 +45,11 @@ function AppRoutes() {
       <Route path="/add-anime" element={
         <ProtectedRoute>
           <AddAnime />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
         </ProtectedRoute>
       } />
     </Routes>

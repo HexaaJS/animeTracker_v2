@@ -84,10 +84,19 @@ const AddAnime = () => {
             setHasSelectedAnime(false);
         }
 
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        // Si le statut passe à "Terminé", mettre l'épisode actuel = total
+        if (name === 'status' && value === 'Terminé') {
+            setFormData({
+                ...formData,
+                [name]: value,
+                currentEpisode: formData.totalEpisodes || formData.currentEpisode
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -199,6 +208,8 @@ const AddAnime = () => {
                     </div>
 
 
+
+
                     <div className="form-group">
                         <label htmlFor="notes">Notes personnelles</label>
                         <textarea
@@ -209,6 +220,7 @@ const AddAnime = () => {
                             rows="4"
                             placeholder="Vos impressions, commentaires..."
                             disabled={loading}
+                            autoComplete="off"
                         />
                     </div>
 

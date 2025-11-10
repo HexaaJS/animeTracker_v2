@@ -1,38 +1,34 @@
-const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const authMiddleware = async (req, res, next) => {
     try {
-        // Récupérer le token du header
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        // Récupérer le username du header
+        const username = req.header('X-Username');
 
-        if (!token) {
+        if (!username) {
             return res.status(401).json({
                 success: false,
-                message: 'Authentification requise'
+                message: 'Pseudo requis'
             });
         }
 
-        // Vérifier le token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Vérifier que l'utilisateur existe
+        const user = await User.findOne({ username });
 
-        // Attacher l'userId à la requête
-        req.userId = decoded.userId;
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Utilisateur non trouvé'
+            });
+        }
+
+        // Attacher l'user à la requête
+        req.user = user;
+        req.userId = user._id;
+        req.username = user.username;
 
         next();
     } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({
-                success: false,
-                message: 'Token invalide'
-            });
-        }
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({
-                success: false,
-                message: 'Token expiré'
-            });
-        }
-
         res.status(500).json({
             success: false,
             message: 'Erreur serveur lors de l\'authentification'

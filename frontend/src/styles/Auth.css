@@ -111,3 +111,21 @@
 .auth-link a:hover {
     text-decoration: underline;
 }
+
+.setup-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.setup-info {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f0f7ff;
+    border-radius: 6px;
+    color: #555;
+    font-size: 13px;
+    border-left: 4px solid #667eea;
+}

@@ -2,10 +2,10 @@ import axios from 'axios';
 
 const API_URL = '/api/animes';
 
-// Fonction pour récupérer le token
+// Fonction pour récupérer le username
 const getAuthHeader = () => {
-    const token = localStorage.getItem('token');
-    return { Authorization: `Bearer ${token}` };
+    const username = localStorage.getItem('username');
+    return { 'X-Username': username };
 };
 
 // Obtenir tous les animes
@@ -68,6 +68,14 @@ export const getStats = async () => {
 // Rechercher des animes
 export const searchAnimes = async (query) => {
     const response = await axios.get(`${API_URL}/search?q=${encodeURIComponent(query)}`, {
+        headers: getAuthHeader()
+    });
+    return response.data;
+};
+
+// Obtenir tous les animes pour les stats (sans pagination)
+export const getAllAnimesForStats = async () => {
+    const response = await axios.get(`${API_URL}`, {
         headers: getAuthHeader()
     });
     return response.data;

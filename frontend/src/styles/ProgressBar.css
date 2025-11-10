@@ -1,0 +1,148 @@
+.progress-bar-container {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.episode-count {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.percentage {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Barre de progression */
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background-color: #e0e0e0;
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar:hover {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.progress-bar.dragging {
+    cursor: grabbing;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    transition: width 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.progress-handle {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    margin-right: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.progress-bar:hover .progress-handle,
+.progress-bar.dragging .progress-handle {
+    opacity: 1;
+}
+
+/* Contrôles + et - */
+.progress-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: center;
+}
+
+.btn-control {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-control:hover:not(:disabled) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-control:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #ccc;
+    color: #ccc;
+}
+
+/* Animation lors du drag */
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.progress-bar.dragging .progress-fill {
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .progress-bar {
+        height: 35px;
+    }
+
+    .episode-count {
+        font-size: 13px;
+    }
+
+    .btn-control {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}

@@ -13,17 +13,15 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [username, setUsername] = useState(localStorage.getItem('username'));
     const [loading, setLoading] = useState(true);
 
-    // Vérifier si l'utilisateur est connecté au chargement
+    // Vérifier si l'utilisateur existe au chargement
     useEffect(() => {
         const initAuth = async () => {
-            if (token) {
+            if (username) {
                 try {
-                    const response = await axios.get('/api/auth/profile', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
+                    const response = await axios.get(`/api/auth/profile/${username}`);
                     setUser(response.data.data);
                 } catch (error) {
                     console.error('Erreur lors de la récupération du profil:', error);
@@ -34,62 +32,40 @@ export const AuthProvider = ({ children }) => {
         };
 
         initAuth();
-    }, [token]);
+    }, [username]);
 
-    // Fonction de connexion
-    const login = async (email, password) => {
+    // Fonction de setup/connexion
+    const setupUser = async (usernameInput) => {
         try {
-            const response = await axios.post('/api/auth/login', { email, password });
-            const { token: newToken, user: userData } = response.data.data;
-
-            localStorage.setItem('token', newToken);
-            setToken(newToken);
-            setUser(userData);
-
-            return { success: true };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.response?.data?.message || 'Erreur de connexion'
-            };
-        }
-    };
-
-    // Fonction d'inscription
-    const register = async (username, email, password) => {
-        try {
-            const response = await axios.post('/api/auth/register', {
-                username,
-                email,
-                password
+            const response = await axios.post('/api/auth/setup', {
+                username: usernameInput
             });
-            const { token: newToken, user: userData } = response.data.data;
+            const userData = response.data.data;
 
-            localStorage.setItem('token', newToken);
-            setToken(newToken);
+            localStorage.setItem('username', userData.username);
+            setUsername(userData.username);
             setUser(userData);
 
             return { success: true };
         } catch (error) {
             return {
                 success: false,
-                message: error.response?.data?.message || 'Erreur lors de l\'inscription'
+                message: error.response?.data?.message || 'Erreur lors de la configuration'
             };
         }
     };
 
     // Fonction de déconnexion
     const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
+        localStorage.removeItem('username');
+        setUsername(null);
         setUser(null);
     };
 
     const value = {
         user,
-        token,
-        login,
-        register,
+        username,
+        setupUser,
         logout,
         loading,
         isAuthenticated: !!user
