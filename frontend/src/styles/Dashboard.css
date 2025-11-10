@@ -262,6 +262,7 @@
 }
 
 .btn-edit,
+.btn-pause,
 .btn-delete {
     padding: 8px 12px;
     border: none;
@@ -275,11 +276,16 @@
     background-color: #2196F3;
 }
 
+.btn-pause {
+    background-color: #9E9E9E;
+}
+
 .btn-delete {
     background-color: #F44336;
 }
 
 .btn-edit:hover,
+.btn-pause:hover,
 .btn-delete:hover {
     transform: scale(1.1);
 }

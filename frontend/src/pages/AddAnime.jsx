@@ -68,8 +68,8 @@ const AddAnime = () => {
             coverImage: formatted.coverImage,
             totalEpisodes: formatted.totalEpisodes || '',
             rating: formatted.rating || '',
-            genre: formatted.genre.join(', '),
-            notes: formatted.notes || ''
+            genre: formatted.genre.join(', ')
+            // notes: pas de remplissage automatique, l'utilisateur écrit ses propres notes
         });
         setShowResults(false);
         setSearchResults([]);
@@ -208,8 +208,6 @@ const AddAnime = () => {
                     </div>
 
 
-
-
                     <div className="form-group">
                         <label htmlFor="notes">Notes personnelles</label>
                         <textarea
@@ -243,4 +241,4 @@ const AddAnime = () => {
     );
 };
 
-export default AddAnime;
+export default AddAnime
