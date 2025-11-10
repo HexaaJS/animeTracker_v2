@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Setup from './pages/Setup';
 import Dashboard from './pages/Dashboard';
 import AddAnime from './pages/AddAnime';
+import EditAnime from './pages/EditAnime';
 import Profile from './pages/Profile';
 import './App.css';
 
@@ -45,6 +46,11 @@ function AppRoutes() {
       <Route path="/add-anime" element={
         <ProtectedRoute>
           <AddAnime />
+        </ProtectedRoute>
+      } />
+      <Route path="/edit-anime/:id" element={
+        <ProtectedRoute>
+          <EditAnime />
         </ProtectedRoute>
       } />
       <Route path="/profile" element={

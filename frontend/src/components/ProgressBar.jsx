@@ -1,20 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import '../styles/ProgressBar.css';
 
 const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
     const [isDragging, setIsDragging] = useState(false);
     const progressBarRef = useRef(null);
 
-    // Calculer le pourcentage de progression
     const percentage = totalEpisodes > 0 ? (currentEpisode / totalEpisodes) * 100 : 0;
+    const isComplete = useMemo(
+        () => totalEpisodes > 0 && currentEpisode >= totalEpisodes,
+        [currentEpisode, totalEpisodes]
+    );
 
-    // Gérer le clic sur la barre
     const handleClick = (e) => {
         if (!totalEpisodes) return;
         updateEpisodeFromClick(e);
     };
 
-    // Gérer le drag
     const handleMouseDown = (e) => {
         if (!totalEpisodes) return;
         setIsDragging(true);
@@ -26,11 +27,8 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
         updateEpisodeFromClick(e);
     };
 
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
+    const handleMouseUp = () => setIsDragging(false);
 
-    // Calculer l'épisode basé sur la position du clic
     const updateEpisodeFromClick = (e) => {
         const bar = progressBarRef.current;
         if (!bar) return;
@@ -39,19 +37,12 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
         const clickX = e.clientX - rect.left;
         const barWidth = rect.width;
 
-        // Calculer l'épisode basé sur la position
         let newEpisode = Math.round((clickX / barWidth) * totalEpisodes);
-
-        // Limiter entre 0 et totalEpisodes
         newEpisode = Math.max(0, Math.min(totalEpisodes, newEpisode));
 
-        // Mettre à jour si différent
-        if (newEpisode !== currentEpisode) {
-            onUpdate(animeId, newEpisode);
-        }
+        if (newEpisode !== currentEpisode) onUpdate(animeId, newEpisode);
     };
 
-    // Gérer le touch pour mobile
     const handleTouchStart = (e) => {
         if (!totalEpisodes) return;
         setIsDragging(true);
@@ -65,9 +56,7 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
         updateEpisodeFromTouch(touch);
     };
 
-    const handleTouchEnd = () => {
-        setIsDragging(false);
-    };
+    const handleTouchEnd = () => setIsDragging(false);
 
     const updateEpisodeFromTouch = (touch) => {
         const bar = progressBarRef.current;
@@ -80,12 +69,9 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
         let newEpisode = Math.round((touchX / barWidth) * totalEpisodes);
         newEpisode = Math.max(0, Math.min(totalEpisodes, newEpisode));
 
-        if (newEpisode !== currentEpisode) {
-            onUpdate(animeId, newEpisode);
-        }
+        if (newEpisode !== currentEpisode) onUpdate(animeId, newEpisode);
     };
 
-    // Boutons + et -
     const handleIncrement = () => {
         if (currentEpisode < (totalEpisodes || 9999)) {
             onUpdate(animeId, currentEpisode + 1);
@@ -104,12 +90,16 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
                 <span className="episode-count">
                     Épisode {currentEpisode}{totalEpisodes ? `/${totalEpisodes}` : ''}
                 </span>
-                <span className="percentage">{Math.round(percentage)}%</span>
+
+                <span className={`percentage ${isComplete ? 'complete' : ''}`}>
+                    {Math.round(percentage)}%
+                    {isComplete && <span className="confetti" aria-label="Bravo" title="Terminé !"></span>}
+                </span>
             </div>
 
             <div
                 ref={progressBarRef}
-                className={`progress-bar ${!totalEpisodes ? 'disabled' : ''} ${isDragging ? 'dragging' : ''}`}
+                className={`progress-bar ${!totalEpisodes ? 'disabled' : ''} ${isDragging ? 'dragging' : ''} ${isComplete ? 'complete' : ''}`}
                 onClick={handleClick}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -120,7 +110,7 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
                 onTouchEnd={handleTouchEnd}
             >
                 <div
-                    className="progress-fill"
+                    className={`progress-fill ${isComplete ? 'complete' : ''}`}
                     style={{ width: `${percentage}%` }}
                 >
                     <div className="progress-handle"></div>

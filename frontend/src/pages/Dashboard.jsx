@@ -31,6 +31,19 @@ const Dashboard = () => {
         }
     };
 
+
+    const handleAbandon = async (id) => {
+        try {
+            const response = await updateAnime(id, { status: 'Abandonné' });
+            setAnimes(animes.map(anime =>
+                anime._id === id ? response.data : anime
+            ));
+        } catch (error) {
+            console.error('Erreur lors de l\'abandon:', error);
+            alert('Erreur lors de l\'abandon');
+        }
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet anime ?')) {
             try {
@@ -124,9 +137,8 @@ const Dashboard = () => {
                 <h1>🎌 Anime Tracker</h1>
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
-                        👤 {user?.username}
+                        {user?.username}
                     </button>
-                    <button onClick={logout} className="btn-logout">Déconnexion</button>
                 </div>
             </header>
 
@@ -194,68 +206,57 @@ const Dashboard = () => {
                     <div className="animes-grid">
                         {filteredAnimes.map((anime) => (
                             <div key={anime._id} className="anime-card">
-                                {anime.coverImage && (
-                                    <img src={anime.coverImage} alt={anime.title} className="anime-cover" />
-                                )}
+                                <div className="anime-card-inner">
+                                    {anime.coverImage && (
+                                        <>
+                                            <div
+                                                className="anime-bg-blur"
+                                                style={{ backgroundImage: `url(${anime.coverImage})` }}
+                                            ></div>
 
-                                <div className="anime-content">
-                                    <h3>{anime.title}</h3>
-
-                                    <div className="anime-status" style={{ background: getStatusColor(anime.status), color: '#fff' }} > {anime.status} </div>
-
-                                    <div className="anime-progress">
-                                        <p>
-                                            <strong>Progression:</strong> {anime.currentEpisode}
-                                            {anime.totalEpisodes && `/${anime.totalEpisodes}`} épisodes
-                                        </p>
-                                        <p>
-                                            <strong>Saison:</strong> {anime.currentSeason}
-                                            {anime.totalSeasons && `/${anime.totalSeasons}`}
-                                        </p>
-                                    </div>
-
-                                    {anime.rating && (
-                                        <div className="anime-rating">
-                                            ⭐ {anime.rating}/10
-                                        </div>
+                                            <img src={anime.coverImage} alt={anime.title} className="anime-cover" />
+                                        </>
                                     )}
 
-                                    {anime.notes && (
-                                        <div className="anime-notes">
-                                            <em>{anime.notes}</em>
+                                    <div className="anime-content">
+                                        <h3>{anime.title}</h3>
+                                        <div
+                                            className="anime-status"
+                                            style={{ background: getStatusColor(anime.status), color: '#fff' }}
+                                        >
+                                            {anime.status}
                                         </div>
-                                    )}
 
-                                    <ProgressBar
-                                        currentEpisode={anime.currentEpisode}
-                                        totalEpisodes={anime.totalEpisodes}
-                                        onUpdate={handleProgressUpdate}
-                                        animeId={anime._id}
-                                    />
+                                        {anime.notes && <div className="anime-notes"><em>{anime.notes}</em></div>}
 
-                                    <div className="anime-actions">
-                                        <button
-                                            className="btn-edit"
-                                            onClick={() => alert('Fonctionnalité à venir !')}
-                                        >
-                                            ✏️
-                                        </button>
-                                        <button
-                                            className="btn-pause"
-                                            onClick={() => handlePause(anime._id)}
-                                            title="Mettre en pause"
-                                        >
-                                            ⏸️
-                                        </button>
-                                        <button
-                                            className="btn-delete"
-                                            onClick={() => handleDelete(anime._id)}
-                                        >
-                                            🗑️
-                                        </button>
+                                        <ProgressBar
+                                            currentEpisode={anime.currentEpisode}
+                                            totalEpisodes={anime.totalEpisodes}
+                                            onUpdate={handleProgressUpdate}
+                                            animeId={anime._id}
+                                        />
+
+                                        <div className="anime-actions">
+                                            <button
+                                                className="btn-edit"
+                                                onClick={() => navigate(`/edit-anime/${anime._id}`)}
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button className="btn-pause" onClick={() => handlePause(anime._id)}>⏸️</button>
+                                            <button
+                                                className="btn-abandon"
+                                                onClick={() => handleAbandon(anime._id)}
+                                                title="Abandonner"
+                                            >
+                                                ❌
+                                            </button>
+                                            <button className="btn-delete" onClick={() => handleDelete(anime._id)}>🗑️</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                         ))}
                     </div>
                 )}
