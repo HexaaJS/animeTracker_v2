@@ -3,8 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { getAllAnimesForStats } from '../services/animeService';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import {
+    PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector
+} from 'recharts';
 import '../styles/Profile.css';
+
+// Slice actif “zoomé”
+const renderActiveShape = (props) => {
+    const {
+        cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill,
+    } = props;
+
+    return (
+        <g>
+            <Sector
+                cx={cx}
+                cy={cy}
+                innerRadius={innerRadius}
+                outerRadius={outerRadius + 10}
+                startAngle={startAngle}
+                endAngle={endAngle}
+                fill={fill}
+            />
+            {/* petit halo */}
+            <Sector
+                cx={cx}
+                cy={cy}
+                innerRadius={outerRadius + 10}
+                outerRadius={outerRadius + 14}
+                startAngle={startAngle}
+                endAngle={endAngle}
+                fill={fill}
+                opacity={0.2}
+            />
+        </g>
+    );
+};
 
 const Profile = () => {
     const { user, logout } = useAuth();
@@ -13,9 +48,24 @@ const Profile = () => {
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Hover slice
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    // Stops pour le dégradé "En cours" issus de --gradient
+    const [enCoursStops, setEnCoursStops] = useState(["#667eea", "#764ba2"]);
+
     useEffect(() => {
         fetchAnimes();
     }, []);
+
+    useEffect(() => {
+        // essaie de lire --gradient (ex: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)")
+        const cssGrad = getComputedStyle(document.documentElement).getPropertyValue('--gradient')?.trim() || '';
+        const matches = cssGrad.match(/#([0-9a-f]{3,8})/gi);
+        if (matches && matches.length >= 2) {
+            setEnCoursStops([matches[0], matches[1]]);
+        }
+    }, [currentTheme]); // si le thème change, on recalcule
 
     const fetchAnimes = async () => {
         try {
@@ -52,13 +102,13 @@ const Profile = () => {
         moyenneNote: animes.filter(a => a.rating).length > 0
             ? (animes.reduce((sum, a) => sum + (a.rating || 0), 0) / animes.filter(a => a.rating).length).toFixed(1)
             : 0,
-        tempsEstime: Math.round(animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0) * 24 / 60) // 24min par épisode
+        tempsEstime: Math.round(animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0) * 24 / 60) // 24min/ep
     };
 
-    // Données pour le graphique en anneau (statuts)
+    // Données pour le graphique (on met des couleurs simples en fallback)
     const statusData = [
-        { name: 'En cours', value: stats.enCours, color: '#4CAF50' },
-        { name: 'Terminé', value: stats.termine, color: '#2196F3' },
+        { name: 'En cours', value: stats.enCours, color: enCoursStops[0] },        // remplacé par url(#grad-en-cours)
+        { name: 'Terminé', value: stats.termine, color: '#22c55e' },               // remplacé par url(#grad-termine)
         { name: 'À voir', value: stats.aVoir, color: '#FF9800' },
         { name: 'En pause', value: stats.enPause, color: '#9E9E9E' },
         { name: 'Abandonné', value: stats.abandonne, color: '#F44336' }
@@ -80,6 +130,17 @@ const Profile = () => {
     if (loading) {
         return <div className="loading">Chargement...</div>;
     }
+
+    // style helper pour les barres "Détails par statut"
+    const getBarBackground = (status) => {
+        if (status.name === 'En cours') {
+            return { backgroundImage: `linear-gradient(90deg, ${enCoursStops[0]} 0%, ${enCoursStops[1]} 100%)` };
+        }
+        if (status.name === 'Terminé') {
+            return { backgroundImage: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)' };
+        }
+        return { backgroundColor: status.color };
+    };
 
     return (
         <div className="profile-page">
@@ -160,6 +221,19 @@ const Profile = () => {
                         {statusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
+                                    {/* Définition des dégradés SVG */}
+                                    <defs>
+                                        <linearGradient id="grad-en-cours" x1="0" y1="0" x2="1" y2="0">
+                                            <stop offset="0%" stopColor={enCoursStops[0]} />
+                                            <stop offset="100%" stopColor={enCoursStops[1]} />
+                                        </linearGradient>
+
+                                        <linearGradient id="grad-termine" x1="0" y1="0" x2="1" y2="0">
+                                            <stop offset="0%" stopColor="#22c55e" />
+                                            <stop offset="100%" stopColor="#16a34a" />
+                                        </linearGradient>
+                                    </defs>
+
                                     <Pie
                                         data={statusData}
                                         cx="50%"
@@ -169,9 +243,28 @@ const Profile = () => {
                                         paddingAngle={5}
                                         dataKey="value"
                                         label={({ name, value }) => `${name}: ${value}`}
+                                        // Anim d’arrivée
+                                        isAnimationActive
+                                        animationDuration={400}
+                                        animationEasing="ease-out"
+                                        // Hover zoom
+                                        activeIndex={activeIndex}
+                                        activeShape={renderActiveShape}
+                                        onMouseEnter={(_, index) => setActiveIndex(index)}
+                                        onMouseLeave={() => setActiveIndex(-1)}
                                     >
                                         {statusData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                style={{ cursor: 'pointer' }}
+                                                fill={
+                                                    entry.name === 'En cours'
+                                                        ? 'url(#grad-en-cours)'
+                                                        : entry.name === 'Terminé'
+                                                            ? 'url(#grad-termine)'
+                                                            : entry.color
+                                                }
+                                            />
                                         ))}
                                     </Pie>
                                     <Tooltip />
@@ -203,7 +296,7 @@ const Profile = () => {
 
                 {/* Détails par statut */}
                 <div className="status-details">
-                    <h3>Détails par statut</h3>
+                    <h3>📋 Détails par statut</h3>
                     <div className="status-bars">
                         {statusData.map((status) => (
                             <div key={status.name} className="status-bar-item">
@@ -216,7 +309,7 @@ const Profile = () => {
                                         className="status-bar-fill"
                                         style={{
                                             width: `${(status.value / stats.total) * 100}%`,
-                                            backgroundColor: status.color
+                                            ...getBarBackground(status),
                                         }}
                                     />
                                 </div>

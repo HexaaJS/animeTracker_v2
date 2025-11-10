@@ -8,7 +8,7 @@ export default function Footer() {
 
             <div className="footer-container">
                 <div className="title">
-                    Made with <Heart color='red' size={16} /> by HexaJS
+                    Made with <Heart color='red' size={16} /> by <a href="https://github.com/HexaaJS" target='_blank'>HexaJS</a>
                 </div>
             </div>
 

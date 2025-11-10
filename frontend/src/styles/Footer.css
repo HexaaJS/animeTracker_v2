@@ -11,3 +11,13 @@
     text-align: center;
     color: var(--text-color, #111);
 }
+
+.title a {
+    text-decoration: none;
+    color: var(--text-color, #111);
+}
+
+.title a:hover {
+    font-weight: bold;
+    color: #333;
+}
