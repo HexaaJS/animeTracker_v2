@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getAllAnimes, deleteAnime, updateProgress } from '../services/animeService';
+import { getAllAnimes, deleteAnime, updateProgress, updateAnime } from '../services/animeService';
 import ProgressBar from '../components/ProgressBar';
 import '../styles/Dashboard.css';
 
@@ -13,9 +13,10 @@ const Dashboard = () => {
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Charger les animes au montage
+    // Charger les animes au montage et quand le filtre change
     useEffect(() => {
         fetchAnimes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filter]);
 
     const fetchAnimes = async () => {
@@ -35,7 +36,7 @@ const Dashboard = () => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet anime ?')) {
             try {
                 await deleteAnime(id);
-                setAnimes(animes.filter(anime => anime._id !== id));
+                setAnimes(prev => prev.filter(anime => anime._id !== id));
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur lors de la suppression');
@@ -43,14 +44,59 @@ const Dashboard = () => {
         }
     };
 
-    const handleProgressUpdate = async (id, currentEpisode) => {
+    // Patch complet : toujours calculer le statut cible après la MAJ serveur
+    const handleProgressUpdate = async (id, nextEpisode) => {
         try {
-            const response = await updateProgress(id, { currentEpisode: parseInt(currentEpisode) });
-            setAnimes(animes.map(anime =>
-                anime._id === id ? response.data : anime
-            ));
+            // 1) Envoyer la progression au serveur
+            const { data: updated } = await updateProgress(id, { currentEpisode: parseInt(nextEpisode, 10) });
+            // "updated" doit contenir { _id, currentEpisode, totalEpisodes, status, ... }
+
+            // 2) Calculer le statut cible
+            const total = Number(updated.totalEpisodes) || 0;
+            const cur = Number(updated.currentEpisode) || 0;
+
+            let targetStatus;
+            if (total > 0 && cur >= total) {
+                targetStatus = 'Terminé';
+            } else if (cur <= 0) {
+                targetStatus = 'A voir';
+            } else {
+                targetStatus = 'En cours';
+            }
+
+            // 3) Mettre à jour le statut si nécessaire
+            let finalDoc = updated;
+            if (updated.status !== targetStatus) {
+                // adapte si ton API attend { status: targetStatus }
+                const res = await updateAnime(id, targetStatus);
+                finalDoc = res.data;
+            }
+
+            // 4) Remplacer dans le state avec la dernière version
+            setAnimes(prev => prev.map(a => (a._id === id ? finalDoc : a)));
         } catch (error) {
             console.error('Erreur lors de la mise à jour:', error);
+            alert('Erreur lors de la mise à jour de la progression');
+        }
+    };
+
+    const handleEdit = async (id) => {
+        navigate('/profile');
+    };
+
+    const handlePause = async (id) => {
+        // snapshot profond (simple) pour rollback fiable
+        const snapshot = JSON.parse(JSON.stringify(animes));
+        setAnimes(prev => prev.map(a => (a._id === id ? { ...a, status: 'En pause' } : a)));
+
+        try {
+            // adapte si ton API attend { status: 'En pause' }
+            const { data } = await updateAnime(id, 'En pause');
+            setAnimes(prev => prev.map(a => (a._id === id ? data : a)));
+        } catch (e) {
+            console.error('Erreur lors de la mise en pause:', e);
+            alert('Impossible de mettre en pause pour le moment.');
+            setAnimes(snapshot); // rollback
         }
     };
 
@@ -58,14 +104,23 @@ const Dashboard = () => {
         anime.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Gradients/couleurs par statut (tu peux réutiliser ailleurs)
     const getStatusColor = (status) => {
         switch (status) {
-            case 'En cours': return '#4CAF50';
-            case 'Terminé': return '#2196F3';
-            case 'A voir': return '#FF9800';
-            case 'En pause': return '#9E9E9E';
-            case 'Abandonné': return '#F44336';
-            default: return '#666';
+            case 'En cours':
+                // violet
+                return 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+            case 'Terminé':
+                // vert
+                return 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
+            case 'A voir':
+                return '#FF9800';
+            case 'En pause':
+                return '#9E9E9E';
+            case 'Abandonné':
+                return '#F44336';
+            default:
+                return '#666';
         }
     };
 
@@ -73,12 +128,11 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1>🎌 Anime Tracker</h1>
+                <h1>Anime Tracker</h1>
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
                         👤 {user?.username}
                     </button>
-                    <button onClick={logout} className="btn-logout">Déconnexion</button>
                 </div>
             </header>
 
@@ -153,7 +207,10 @@ const Dashboard = () => {
                                 <div className="anime-content">
                                     <h3>{anime.title}</h3>
 
-                                    <div className="anime-status" style={{ backgroundColor: getStatusColor(anime.status) }}>
+                                    <div
+                                        className="anime-status"
+                                        style={{ background: getStatusColor(anime.status), color: '#fff' }}
+                                    >
                                         {anime.status}
                                     </div>
 
@@ -190,7 +247,7 @@ const Dashboard = () => {
                                     <div className="anime-actions">
                                         <button
                                             className="btn-edit"
-                                            onClick={() => alert('Fonctionnalité à venir !')}
+                                            onClick={() => handleEdit(anime._id)}
                                         >
                                             ✏️
                                         </button>
@@ -199,6 +256,12 @@ const Dashboard = () => {
                                             onClick={() => handleDelete(anime._id)}
                                         >
                                             🗑️
+                                        </button>
+                                        <button
+                                            className="btn-delete"
+                                            onClick={() => handlePause(anime._id)}
+                                        >
+                                            ⏸️
                                         </button>
                                     </div>
                                 </div>
