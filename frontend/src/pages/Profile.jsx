@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { getAllAnimesForStats } from '../services/animeService';
@@ -8,6 +8,9 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector
 } from 'recharts';
 import '../styles/Profile.css';
+import { Crown } from 'lucide-react';
+import PremiumModal from '../components/PremiumModal';
+import { checkPaymentStatus } from '../services/premiumService';
 
 // Slice actif “zoomé”
 const renderActiveShape = (props) => {
@@ -45,18 +48,29 @@ const Profile = () => {
     const { user, logout } = useAuth();
     const { currentTheme, changeTheme, themes } = useTheme();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    // Hover slice
     const [activeIndex, setActiveIndex] = useState(-1);
-
-    // Stops pour le dégradé "En cours" issus de --gradient
     const [enCoursStops, setEnCoursStops] = useState(["#667eea", "#764ba2"]);
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
 
     useEffect(() => {
         fetchAnimes();
+        checkPaymentStatus();
     }, []);
+
+    const checkPaymentStatus = () => {
+        const paymentStatus = searchParams.get('payment');
+        if (paymentStatus === 'success') {
+            alert('🎉 Paiement réussi ! Premium activé !');
+            setSearchParams({}); // Nettoyer l'URL
+            window.location.reload(); // Recharger pour mettre à jour isPremium
+        } else if (paymentStatus === 'cancelled') {
+            alert('❌ Paiement annulé');
+            setSearchParams({});
+        }
+    };
 
     useEffect(() => {
         // essaie de lire --gradient (ex: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)")
@@ -65,7 +79,7 @@ const Profile = () => {
         if (matches && matches.length >= 2) {
             setEnCoursStops([matches[0], matches[1]]);
         }
-    }, [currentTheme]); // si le thème change, on recalcule
+    }, [currentTheme]);
 
     const fetchAnimes = async () => {
         try {
@@ -172,11 +186,18 @@ const Profile = () => {
                     </div>
                 </div>
 
+                {/* Sélecteur de thème */}
                 <div className="theme-section">
                     <h3>Thème</h3>
-                    {!user?.isPremium && (
-                        <div className="premium-banner">
+                    {!user?.isPremium ? (
+                        <button className="premium-banner-btn" onClick={() => setShowPremiumModal(true)}>
+                            <Crown size={20} />
                             <span>Débloquez 20+ thèmes exclusifs avec Premium</span>
+                        </button>
+                    ) : (
+                        <div className="premium-badge">
+                            <Crown size={18} />
+                            <span>Premium Actif</span>
                         </div>
                     )}
                     <div className="theme-dropdown">
@@ -346,8 +367,16 @@ const Profile = () => {
                     Déconnexion
                 </button>
             </div>
+
+            <PremiumModal
+                isOpen={showPremiumModal}
+                onClose={() => setShowPremiumModal(false)}
+                username={user?.username}
+            />
+
         </div>
     );
 };
 
 export default Profile;
+

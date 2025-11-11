@@ -134,7 +134,7 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1 className='logo'>Anime Tracker</h1>
+                <h1 className='logo'>Graphi-Kai</h1>
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
                         {user?.username}

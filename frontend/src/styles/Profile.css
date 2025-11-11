@@ -253,6 +253,49 @@
 }
 
 
+.premium-banner-btn {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.premium-banner-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+}
+
+.premium-badge {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+
+
 
 /* Stats Grid */
 .stats-grid {

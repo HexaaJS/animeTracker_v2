@@ -6,32 +6,30 @@ const connectDB = require('./config/database');
 // Import des routes
 const userRoutes = require('./routes/userRoutes');
 const animeRoutes = require('./routes/animeRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), require('./controllers/paymentController').handleWebhook);
 
 // Connexion à la base de données
 connectDB();
 
 // Middlewares
-app.use(cors());
+const corsOptions = {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Route de test
-app.get('/', (req, res) => {
-    res.json({
-        message: 'API Anime Tracker',
-        version: '1.0.0',
-        endpoints: {
-            auth: '/api/auth'
-        }
-    });
-});
 
 // Routes
 app.use('/api/auth', userRoutes);
 app.use('/api/animes', animeRoutes);
+app.use('/api/payment', paymentRoutes);
 
 
 // Gestion des routes non trouvées
