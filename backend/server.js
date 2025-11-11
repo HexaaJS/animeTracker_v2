@@ -20,7 +20,8 @@ connectDB();
 const allowedOrigins = [
     'http://localhost:3000',
     'https://graphikai.app',
-    'https://www.graphikai.app'
+    'https://www.graphikai.app',
+    'https://api.graphikai.app',
 ];
 
 const corsOptions = {
