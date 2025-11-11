@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { getOrCreateUser, getProfile, upgradeToPremium } = require('../controllers/userController');
+const { register, login, getProfile, upgradeToPremium } = require('../controllers/userController');
 
-// Route pour créer ou récupérer un utilisateur
-router.post('/setup', getOrCreateUser);
+// Inscription
+router.post('/register', register);
 
-// Route pour obtenir le profil par username
+// Connexion
+router.post('/login', login);
+
+// Profil
 router.get('/profile/:username', getProfile);
 
-// Route pour upgrader à Premium
+// Upgrade Premium
 router.post('/upgrade-premium', upgradeToPremium);
 
 module.exports = router;

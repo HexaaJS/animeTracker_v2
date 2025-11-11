@@ -34,28 +34,45 @@ export const AuthProvider = ({ children }) => {
         initAuth();
     }, [username]);
 
-    // Fonction de setup/connexion
-    const setupUser = async (usernameInput) => {
+    // INSCRIPTION
+    const register = async (userData) => {
         try {
-            const response = await axios.post('/api/auth/setup', {
-                username: usernameInput
-            });
-            const userData = response.data.data;
+            const response = await axios.post('/api/auth/register', userData);
+            const user = response.data.data;
 
-            localStorage.setItem('username', userData.username);
-            setUsername(userData.username);
-            setUser(userData);
+            localStorage.setItem('username', user.username);
+            setUsername(user.username);
+            setUser(user);
 
             return { success: true };
         } catch (error) {
             return {
                 success: false,
-                message: error.response?.data?.message || 'Erreur lors de la configuration'
+                message: error.response?.data?.message || 'Erreur lors de l\'inscription'
             };
         }
     };
 
-    // Fonction de déconnexion
+    // CONNEXION
+    const login = async (credentials) => {
+        try {
+            const response = await axios.post('/api/auth/login', credentials);
+            const user = response.data.data;
+
+            localStorage.setItem('username', user.username);
+            setUsername(user.username);
+            setUser(user);
+
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Erreur lors de la connexion'
+            };
+        }
+    };
+
+    // DÉCONNEXION
     const logout = () => {
         localStorage.removeItem('username');
         setUsername(null);
@@ -65,7 +82,8 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         username,
-        setupUser,
+        register,
+        login,
         logout,
         loading,
         isAuthenticated: !!user

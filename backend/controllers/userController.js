@@ -1,75 +1,112 @@
 const User = require('../models/User');
 const { customAlphabet } = require('nanoid');
 
-// Générer un ID unique de 8 caractères
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
 
-// Créer ou récupérer un utilisateur par pseudo
-const getOrCreateUser = async (req, res) => {
+// INSCRIPTION
+const register = async (req, res) => {
     try {
-        const { username } = req.body;
-
-        console.log('📥 Requête reçue:', { username });
+        const { username, email, password } = req.body;
 
         // Validation
-        if (!username || !username.trim()) {
-            console.log('❌ Username vide');
+        if (!username || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Le pseudo est requis'
+                message: 'Tous les champs sont requis'
             });
         }
 
-        const trimmedUsername = username.trim();
-        console.log('🔍 Recherche de l\'utilisateur:', trimmedUsername);
-
-        // Vérifier si l'utilisateur existe déjà
-        let user = await User.findOne({ username: trimmedUsername });
-
-        console.log('👤 Résultat recherche:', user ? 'Trouvé' : 'Non trouvé');
-
-        if (user) {
-            console.log('✅ Utilisateur existe, retour des données');
-            return res.json({
-                success: true,
-                message: 'Bienvenue !',
-                data: user
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le mot de passe doit contenir au moins 6 caractères'
             });
         }
 
-        // Créer un nouvel utilisateur
-        const userId = nanoid();
-        console.log('🆕 Création nouvel utilisateur avec userId:', userId);
+        // Vérifier si l'email existe déjà
+        const existingEmail = await User.findOne({ email: email.toLowerCase() });
+        if (existingEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Cet email est déjà utilisé'
+            });
+        }
 
-        user = new User({
-            username: trimmedUsername,
-            userId
-        });
-
-        await user.save();
-        console.log('💾 Utilisateur sauvegardé avec succès');
-
-        res.status(201).json({
-            success: true,
-            message: 'Profil créé avec succès !',
-            data: user
-        });
-    } catch (error) {
-        console.error('❌ ERREUR:', error);
-        console.error('Code erreur:', error.code);
-        console.error('Message:', error.message);
-
-        if (error.code === 11000) {
-            console.log('🔒 Erreur duplicate key');
+        // Vérifier si le pseudo existe déjà
+        const existingUsername = await User.findOne({ username });
+        if (existingUsername) {
             return res.status(400).json({
                 success: false,
                 message: 'Ce pseudo est déjà utilisé'
             });
         }
 
+        // Créer le nouvel utilisateur
+        const userId = nanoid();
+        const user = new User({
+            username: username.trim(),
+            email: email.toLowerCase().trim(),
+            password,
+            userId
+        });
+
+        await user.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Compte créé avec succès !',
+            data: user
+        });
+    } catch (error) {
+        console.error('Erreur inscription:', error);
         res.status(500).json({
             success: false,
-            message: error.message || 'Erreur lors de la création du profil'
+            message: error.message || 'Erreur lors de l\'inscription'
+        });
+    }
+};
+
+// CONNEXION
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validation
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email et mot de passe requis'
+            });
+        }
+
+        // Chercher l'utilisateur
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Email ou mot de passe incorrect'
+            });
+        }
+
+        // Vérifier le mot de passe
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Email ou mot de passe incorrect'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Connexion réussie !',
+            data: user
+        });
+    } catch (error) {
+        console.error('Erreur connexion:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erreur lors de la connexion'
         });
     }
 };
@@ -128,14 +165,13 @@ const upgradeToPremium = async (req, res) => {
             });
         }
 
-        // Activer Premium
         user.isPremium = true;
         user.premiumUnlockedAt = new Date();
         await user.save();
 
         res.json({
             success: true,
-            message: '🎉 Premium débloqué ! Tous les thèmes sont maintenant disponibles !',
+            message: '🎉 Premium débloqué !',
             data: user
         });
     } catch (error) {
@@ -147,7 +183,8 @@ const upgradeToPremium = async (req, res) => {
 };
 
 module.exports = {
-    getOrCreateUser,
+    register,
+    login,
     getProfile,
     upgradeToPremium
 };

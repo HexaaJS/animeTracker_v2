@@ -2,13 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import Setup from './pages/Setup';
+import Register from './pages/Register';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddAnime from './pages/AddAnime';
 import EditAnime from './pages/EditAnime';
 import Profile from './pages/Profile';
 import './App.css';
-import Footer from './components/Footer';
 
 // Composant pour protéger les routes
 const ProtectedRoute = ({ children }) => {
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
     return <div className="loading">Chargement...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/setup" />;
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 // Composant pour les routes publiques (si déjà connecté, rediriger)
@@ -35,9 +35,14 @@ const PublicRoute = ({ children }) => {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/setup" element={
+      <Route path="/register" element={
         <PublicRoute>
-          <Setup />
+          <Register />
+        </PublicRoute>
+      } />
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
         </PublicRoute>
       } />
       <Route path="/" element={
@@ -72,7 +77,6 @@ function App() {
           <AppRoutes />
         </Router>
       </AuthProvider>
-      <Footer />
     </ThemeProvider>
   );
 }
