@@ -262,7 +262,6 @@ export const themes = {
     }
 };
 
-
 export const ThemeProvider = ({ children }) => {
     const [currentTheme, setCurrentTheme] = useState('purpleDream');
     const [user, setUser] = useState(null);
@@ -316,9 +315,13 @@ export const ThemeProvider = ({ children }) => {
     const applyTheme = (themeName) => {
         const theme = themes[themeName];
         if (theme) {
+            // Calcul de la couleur de texte lisible
+            const textColor = getReadableTextColor(theme.primary);
+
             document.documentElement.style.setProperty('--gradient', theme.gradient);
             document.documentElement.style.setProperty('--primary-color', theme.primary);
             document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+            document.documentElement.style.setProperty('--text-color', textColor);
         }
     };
 
