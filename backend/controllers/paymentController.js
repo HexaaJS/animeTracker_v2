@@ -43,9 +43,8 @@ const createCheckoutSession = async (req, res) => {
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: '🎨 Premium Themes Pack',
+                            name: 'Premium Themes Pack',
                             description: 'Débloquez 20+ thèmes exclusifs à vie',
-                            images: ['https://i.imgur.com/EHyR2nP.png'], // Optionnel : URL de ton logo
                         },
                         unit_amount: PREMIUM_PRICE,
                     },
