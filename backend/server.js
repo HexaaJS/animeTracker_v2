@@ -19,30 +19,39 @@ connectDB();
 
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://graphikai.app',
-    'https://www.graphikai.app',
-    'https://api.graphikai.app',
+    'http://localhost:5173', // Vite si besoin
+    /^https:\/\/([a-z0-9-]+\.)*graphikai\.app$/i,
 ];
 
 const corsOptions = {
-    origin: function (origin, callback) {
-        // Autoriser les requêtes sans origin (Postman, curl, etc.)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+    origin(origin, callback) {
+        if (!origin) return callback(null, true); // Postman/cURL
+        const ok = allowedOrigins.some((o) =>
+            o instanceof RegExp ? o.test(origin) : o === origin
+        );
+        return ok ? callback(null, true) : callback(new Error('Not allowed by CORS'));
     },
-    credentials: true,
-    optionsSuccessStatus: 200
+    credentials: true, // si tu envoies des cookies/session
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length', 'Content-Type'],
+    optionsSuccessStatus: 204,
 };
+app.use(cors(corsOptions));
+
+app.use((err, req, res, next) => {
+    if (err && err.message === 'Not allowed by CORS') {
+        return res.status(403).json({ success: false, message: 'Origin non autorisé par CORS', origin: req.headers.origin });
+    }
+    next(err);
+});
+
 
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.options('*', cors());
 
 // Routes
 app.use('/api/auth', userRoutes);
