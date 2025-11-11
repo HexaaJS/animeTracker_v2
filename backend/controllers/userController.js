@@ -9,8 +9,11 @@ const getOrCreateUser = async (req, res) => {
     try {
         const { username } = req.body;
 
+        console.log('📥 Requête reçue:', { username });
+
         // Validation
         if (!username || !username.trim()) {
+            console.log('❌ Username vide');
             return res.status(400).json({
                 success: false,
                 message: 'Le pseudo est requis'
@@ -18,12 +21,15 @@ const getOrCreateUser = async (req, res) => {
         }
 
         const trimmedUsername = username.trim();
+        console.log('🔍 Recherche de l\'utilisateur:', trimmedUsername);
 
         // Vérifier si l'utilisateur existe déjà
         let user = await User.findOne({ username: trimmedUsername });
 
+        console.log('👤 Résultat recherche:', user ? 'Trouvé' : 'Non trouvé');
+
         if (user) {
-            // Utilisateur existe déjà
+            console.log('✅ Utilisateur existe, retour des données');
             return res.json({
                 success: true,
                 message: 'Bienvenue !',
@@ -33,11 +39,15 @@ const getOrCreateUser = async (req, res) => {
 
         // Créer un nouvel utilisateur
         const userId = nanoid();
+        console.log('🆕 Création nouvel utilisateur avec userId:', userId);
+
         user = new User({
             username: trimmedUsername,
             userId
         });
+
         await user.save();
+        console.log('💾 Utilisateur sauvegardé avec succès');
 
         res.status(201).json({
             success: true,
@@ -45,12 +55,18 @@ const getOrCreateUser = async (req, res) => {
             data: user
         });
     } catch (error) {
+        console.error('❌ ERREUR:', error);
+        console.error('Code erreur:', error.code);
+        console.error('Message:', error.message);
+
         if (error.code === 11000) {
+            console.log('🔒 Erreur duplicate key');
             return res.status(400).json({
                 success: false,
                 message: 'Ce pseudo est déjà utilisé'
             });
         }
+
         res.status(500).json({
             success: false,
             message: error.message || 'Erreur lors de la création du profil'
