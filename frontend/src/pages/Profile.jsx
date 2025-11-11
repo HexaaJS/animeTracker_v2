@@ -172,26 +172,49 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Sélecteur de thème */}
                 <div className="theme-section">
                     <h3>Thème</h3>
-                    <div className="theme-grid">
-                        {Object.entries(themes).map(([key, theme]) => (
+                    {!user?.isPremium && (
+                        <div className="premium-banner">
+                            <span>Débloquez 20+ thèmes exclusifs avec Premium</span>
+                        </div>
+                    )}
+                    <div className="theme-dropdown">
+                        <div className="theme-selected">
                             <div
-                                key={key}
-                                className={`theme-card ${currentTheme === key ? 'active' : ''}`}
-                                onClick={() => changeTheme(key)}
-                            >
-                                <div
-                                    className="theme-preview"
-                                    style={{ background: theme.gradient }}
-                                />
-                                <div className="theme-info">
-                                    <span className="theme-emoji">{theme.emoji}</span>
-                                    <span className="theme-name">{theme.name}</span>
-                                </div>
-                            </div>
-                        ))}
+                                className="theme-preview-small"
+                                style={{ background: themes[currentTheme].gradient }}
+                            />
+                            <span className="theme-current-name">
+                                {themes[currentTheme].emoji} {themes[currentTheme].name}
+                            </span>
+                            <span className="dropdown-arrow">▼</span>
+                        </div>
+
+                        <div className="theme-dropdown-menu">
+                            {Object.entries(themes).map(([key, theme]) => {
+                                const isLocked = theme.isPremium && !user?.isPremium;
+                                return (
+                                    <div
+                                        key={key}
+                                        className={`theme-option ${currentTheme === key ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                                        onClick={() => !isLocked && changeTheme(key)}
+                                    >
+                                        <div
+                                            className="theme-preview-small"
+                                            style={{ background: theme.gradient, opacity: isLocked ? 0.5 : 1 }}
+                                        />
+                                        <span className="theme-option-emoji">{theme.emoji}</span>
+                                        <span className="theme-option-name">{theme.name}</span>
+                                        {isLocked ? (
+                                            <span className="lock-icon">🔒</span>
+                                        ) : currentTheme === key ? (
+                                            <span className="check-mark">✓</span>
+                                        ) : null}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 

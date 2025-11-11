@@ -84,7 +84,54 @@ const getProfile = async (req, res) => {
     }
 };
 
+// Upgrader à Premium
+const upgradeToPremium = async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        if (!username) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le pseudo est requis'
+            });
+        }
+
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Utilisateur non trouvé'
+            });
+        }
+
+        if (user.isPremium) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vous êtes déjà Premium !'
+            });
+        }
+
+        // Activer Premium
+        user.isPremium = true;
+        user.premiumUnlockedAt = new Date();
+        await user.save();
+
+        res.json({
+            success: true,
+            message: '🎉 Premium débloqué ! Tous les thèmes sont maintenant disponibles !',
+            data: user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erreur lors de l\'upgrade'
+        });
+    }
+};
+
 module.exports = {
     getOrCreateUser,
-    getProfile
+    getProfile,
+    upgradeToPremium
 };

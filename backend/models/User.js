@@ -17,6 +17,14 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: String,
         default: null
+    },
+    isPremium: {
+        type: Boolean,
+        default: false
+    },
+    premiumUnlockedAt: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true
