@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile, upgradeToPremium } = require('../controllers/userController');
+const { register, login, getProfile, upgradeToPremium, updateTheme } = require('../controllers/userController');
 
 // Inscription
 router.post('/register', register);
@@ -13,5 +13,8 @@ router.get('/profile/:username', getProfile);
 
 // Upgrade Premium
 router.post('/upgrade-premium', upgradeToPremium);
+
+// Mettre à jour le thème
+router.post('/update-theme', updateTheme);
 
 module.exports = router;

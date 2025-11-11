@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    selectedTheme: {
+        type: String,
+        default: 'purpleDream'
+    },
     isPremium: {
         type: Boolean,
         default: false

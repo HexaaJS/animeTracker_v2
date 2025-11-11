@@ -95,7 +95,7 @@ const Profile = () => {
     const handleLogout = () => {
         if (window.confirm('Es-tu sûr de vouloir te déconnecter ?')) {
             logout();
-            navigate('/setup');
+            navigate('/login');
         }
     };
 

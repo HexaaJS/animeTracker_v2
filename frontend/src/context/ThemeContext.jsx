@@ -262,41 +262,93 @@ export const themes = {
     }
 };
 
+
 export const ThemeProvider = ({ children }) => {
     const [currentTheme, setCurrentTheme] = useState('purpleDream');
+    const [user, setUser] = useState(null);
 
-    // Charger le thème depuis localStorage
+    // Écouter les changements d'utilisateur
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme && themes[savedTheme]) {
-            setCurrentTheme(savedTheme);
-            applyTheme(savedTheme);
-        } else {
-            applyTheme('purpleDream');
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const handleStorageChange = () => {
+            const username = localStorage.getItem('username');
+            if (username) {
+                // Charger le profil pour récupérer le thème
+                fetchUserTheme(username);
+            } else {
+                // Pas d'utilisateur → thème par défaut
+                setCurrentTheme('purpleDream');
+                applyTheme('purpleDream');
+            }
+        };
+
+        handleStorageChange();
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
+
+    // Récupérer le thème de l'utilisateur depuis l'API
+    const fetchUserTheme = async (username) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/profile/${username}`);
+            const data = await response.json();
+            if (data.success) {
+                setUser(data.data);
+                const userTheme = data.data.selectedTheme || 'purpleDream';
+
+                // Vérifier si le thème est premium et si l'user n'est pas premium
+                const theme = themes[userTheme];
+                if (theme && theme.isPremium && !data.data.isPremium) {
+                    // Réinitialiser au thème par défaut
+                    setCurrentTheme('purpleDream');
+                    applyTheme('purpleDream');
+                } else {
+                    setCurrentTheme(userTheme);
+                    applyTheme(userTheme);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement thème:', error);
+        }
+    };
 
     // Appliquer le thème via CSS variables
     const applyTheme = (themeName) => {
         const theme = themes[themeName];
         if (theme) {
-            const textColor = theme.text || getReadableTextColor(theme.primary);
-
-            const root = document.documentElement;
-            root.style.setProperty('--gradient', theme.gradient);
-            root.style.setProperty('--primary-color', theme.primary);
-            root.style.setProperty('--secondary-color', theme.secondary);
-            root.style.setProperty('--text-color', textColor);
+            document.documentElement.style.setProperty('--gradient', theme.gradient);
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--secondary-color', theme.secondary);
         }
     };
 
-    // Changer de thème
-    const changeTheme = (themeName) => {
-        if (themes[themeName]) {
-            setCurrentTheme(themeName);
-            localStorage.setItem('theme', themeName);
-            applyTheme(themeName);
+    // Changer de thème et sauvegarder en BDD
+    const changeTheme = async (themeName) => {
+        if (!themes[themeName]) return;
+
+        const theme = themes[themeName];
+        const username = localStorage.getItem('username');
+
+        // Bloquer les thèmes premium
+        if (theme.isPremium && user && !user.isPremium) {
+            alert('🔒 Ce thème est réservé aux membres Premium');
+            return;
+        }
+
+        setCurrentTheme(themeName);
+        applyTheme(themeName);
+
+        // Sauvegarder en BDD
+        if (username) {
+            try {
+                await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/update-theme`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, theme: themeName })
+                });
+            } catch (error) {
+                console.error('Erreur sauvegarde thème:', error);
+            }
         }
     };
 
@@ -304,7 +356,8 @@ export const ThemeProvider = ({ children }) => {
         currentTheme,
         changeTheme,
         themes,
-        activeTheme: themes[currentTheme]
+        activeTheme: themes[currentTheme],
+        user
     };
 
     return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

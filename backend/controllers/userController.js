@@ -182,9 +182,46 @@ const upgradeToPremium = async (req, res) => {
     }
 };
 
+// Mettre à jour le thème
+const updateTheme = async (req, res) => {
+    try {
+        const { username, theme } = req.body;
+
+        if (!username || !theme) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username et thème requis'
+            });
+        }
+
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Utilisateur non trouvé'
+            });
+        }
+
+        user.selectedTheme = theme;
+        await user.save();
+
+        res.json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erreur lors de la mise à jour du thème'
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
     getProfile,
-    upgradeToPremium
+    upgradeToPremium,
+    updateTheme
 };
