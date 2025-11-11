@@ -16,12 +16,29 @@ app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), requ
 // Connexion à la base de données
 connectDB();
 
-// Middlewares
+
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://graphikai.app',
+    'https://www.graphikai.app'
+];
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: function (origin, callback) {
+        // Autoriser les requêtes sans origin (Postman, curl, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     optionsSuccessStatus: 200
 };
+
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
