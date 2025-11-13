@@ -88,12 +88,12 @@ const ProgressBar = ({ currentEpisode, totalEpisodes, onUpdate, animeId }) => {
         <div className="progress-bar-container">
             <div className="progress-info">
                 <span className="episode-count">
-                    Episode {currentEpisode}{totalEpisodes ? `/${totalEpisodes}` : ''}
+                    Épisode {currentEpisode}{totalEpisodes ? `/${totalEpisodes}` : ''}
                 </span>
 
                 <span className={`percentage ${isComplete ? 'complete' : ''}`}>
                     {Math.round(percentage)}%
-                    {isComplete && <span className="confetti" aria-label="Well done" title="Completed!"></span>}
+                    {isComplete && <span className="confetti" aria-label="Bravo" title="Terminé !"></span>}
                 </span>
             </div>
 
