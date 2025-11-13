@@ -29,19 +29,19 @@ const Register = () => {
 
         // Validation
         if (!formData.username || !formData.email || !formData.password) {
-            setError('Tous les champs sont requis');
+            setError('All fields are required');
             setLoading(false);
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
+            setError('Passwords do not match');
             setLoading(false);
             return;
         }
 
         if (formData.password.length < 6) {
-            setError('Le mot de passe doit contenir au moins 6 caractères');
+            setError('Password must be at least 6 characters long');
             setLoading(false);
             return;
         }
@@ -65,20 +65,20 @@ const Register = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <h1>🎌 Graphi-Kai</h1>
-                <h2>Inscription</h2>
+                <h2>Sign Up</h2>
 
                 {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="username">Pseudo</label>
+                        <label htmlFor="username">Username</label>
                         <input
                             type="text"
                             id="username"
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
-                            placeholder="Ton pseudo"
+                            placeholder="Your username"
                             disabled={loading}
                             autoFocus
                         />
@@ -92,44 +92,44 @@ const Register = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="email@exemple.com"
+                            placeholder="email@example.com"
                             disabled={loading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Mot de passe</label>
+                        <label htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="Minimum 6 caractères"
+                            placeholder="Minimum 6 characters"
                             disabled={loading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+                        <label htmlFor="confirmPassword">Confirm Password</label>
                         <input
                             type="password"
                             id="confirmPassword"
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            placeholder="Retape ton mot de passe"
+                            placeholder="Re-enter your password"
                             disabled={loading}
                         />
                     </div>
 
                     <button type="submit" className="btn-primary" disabled={loading}>
-                        {loading ? 'Inscription...' : 'S\'inscrire'}
+                        {loading ? 'Signing up...' : 'Sign Up'}
                     </button>
                 </form>
 
                 <p className="auth-link">
-                    Déjà un compte ? <Link to="/login">Se connecter</Link>
+                    Already have an account? <Link to="/login">Log in</Link>
                 </p>
             </div>
         </div>

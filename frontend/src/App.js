@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="loading">Chargement...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return isAuthenticated ? children : <Navigate to="/login" />;
@@ -26,7 +26,7 @@ const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="loading">Chargement...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return !isAuthenticated ? children : <Navigate to="/" />;

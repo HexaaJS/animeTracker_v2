@@ -26,7 +26,7 @@ const Login = () => {
         setLoading(true);
 
         if (!formData.email || !formData.password) {
-            setError('Tous les champs sont requis');
+            setError('All fields are required');
             setLoading(false);
             return;
         }
@@ -49,7 +49,7 @@ const Login = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <h1>Graphi-Kai</h1>
-                <h2>Connexion</h2>
+                <h2>Login</h2>
 
                 {error && <div className="error-message">{error}</div>}
 
@@ -62,32 +62,32 @@ const Login = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="email@exemple.com"
+                            placeholder="email@example.com"
                             disabled={loading}
                             autoFocus
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Mot de passe</label>
+                        <label htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="Ton mot de passe"
+                            placeholder="Your password"
                             disabled={loading}
                         />
                     </div>
 
                     <button type="submit" className="btn-primary" disabled={loading}>
-                        {loading ? 'Connexion...' : 'Se connecter'}
+                        {loading ? 'Logging in...' : 'Log in'}
                     </button>
                 </form>
 
                 <p className="auth-link">
-                    Pas encore de compte ? <Link to="/register">S'inscrire</Link>
+                    Don't have an account? <Link to="/register">Sign up</Link>
                 </p>
             </div>
         </div>

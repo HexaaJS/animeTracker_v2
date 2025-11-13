@@ -4,10 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { getAllAnimes, deleteAnime, updateProgress, updateAnime } from '../services/animeService';
 import ProgressBar from '../components/ProgressBar';
 import '../styles/Dashboard.css';
-import { Edit, Pause, X, Trash2, Search } from 'lucide-react';
+import { Edit, Pause, X, Trash2, Search, HelpingHand } from 'lucide-react';
+import Logo from '../assets/logo.png'
 
 const Dashboard = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,87 +26,86 @@ const Dashboard = () => {
             const response = await getAllAnimes(filters);
             setAnimes(response.data);
         } catch (error) {
-            console.error('Erreur lors du chargement des animes:', error);
+            console.error('Error loading animes:', error);
         } finally {
             setLoading(false);
         }
     };
 
-
     const handleAbandon = async (id) => {
         try {
-            const response = await updateAnime(id, { status: 'Abandonné' });
+            const response = await updateAnime(id, { status: 'Dropped' });
             setAnimes(animes.map(anime =>
                 anime._id === id ? response.data : anime
             ));
         } catch (error) {
-            console.error('Erreur lors de l\'abandon:', error);
-            alert('Erreur lors de l\'abandon');
+            console.error('Error dropping anime:', error);
+            alert('Error dropping anime');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet anime ?')) {
+        if (window.confirm('Are you sure you want to delete this anime?')) {
             try {
                 await deleteAnime(id);
                 setAnimes(animes.filter(anime => anime._id !== id));
             } catch (error) {
-                console.error('Erreur lors de la suppression:', error);
-                alert('Erreur lors de la suppression');
+                console.error('Error deleting:', error);
+                alert('Error deleting anime');
             }
         }
     };
 
     const handlePause = async (id) => {
         try {
-            const response = await updateAnime(id, { status: 'En pause' });
+            const response = await updateAnime(id, { status: 'On Hold' });
             setAnimes(animes.map(anime =>
                 anime._id === id ? response.data : anime
             ));
         } catch (error) {
-            console.error('Erreur lors de la mise en pause:', error);
-            alert('Erreur lors de la mise en pause');
+            console.error('Error pausing:', error);
+            alert('Error pausing anime');
         }
     };
 
     const handleProgressUpdate = async (id, currentEpisode) => {
         try {
-            // 1) Mettre à jour la progression
+            // 1) Update progress
             const response = await updateProgress(id, { currentEpisode: parseInt(currentEpisode) });
             const updated = response.data;
 
-            // 2) Calculer le statut cible selon la progression
+            // 2) Calculate target status based on progress
             const total = Number(updated.totalEpisodes) || 0;
             const cur = Number(updated.currentEpisode) || 0;
 
             let targetStatus;
             if (total > 0 && cur >= total) {
-                // 100% → Terminé
-                targetStatus = 'Terminé';
+                // 100% → Completed
+                targetStatus = 'Completed';
             } else if (cur === 0) {
-                // 0% → A voir
-                targetStatus = 'A voir';
+                // 0% → To Watch
+                targetStatus = 'To Watch';
             } else if (cur > 0 && cur < total) {
-                // Entre 1% et 99% → En cours
-                targetStatus = 'En cours';
+                // Between 1% and 99% → Watching
+                targetStatus = 'Watching';
             } else {
-                // Garde le statut actuel si pas de totalEpisodes défini
+                // Keep current status if totalEpisodes not defined
                 targetStatus = updated.status;
             }
 
-            // 3) Mettre à jour le statut si nécessaire
+            // 3) Update status if necessary
             let finalDoc = updated;
             if (updated.status !== targetStatus) {
                 const statusResponse = await updateAnime(id, { status: targetStatus });
                 finalDoc = statusResponse.data;
             }
 
-            // 4) Mettre à jour le state avec la dernière version
+            // 4) Update state with latest version
             setAnimes(animes.map(anime =>
                 anime._id === id ? finalDoc : anime
             ));
         } catch (error) {
-            console.error('Erreur lors de la mise à jour:', error);
+            console.error('Error updating:', error);
         }
     };
 
@@ -115,15 +115,15 @@ const Dashboard = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'En cours':
+            case 'Watching':
                 return getComputedStyle(document.documentElement).getPropertyValue('--gradient').trim() || 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
-            case 'Terminé':
+            case 'Completed':
                 return 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
-            case 'A voir':
+            case 'To Watch':
                 return '#FF9800';
-            case 'En pause':
+            case 'On Hold':
                 return '#9E9E9E';
-            case 'Abandonné':
+            case 'Dropped':
                 return '#F44336';
             default:
                 return '#666';
@@ -134,7 +134,12 @@ const Dashboard = () => {
         <div className="dashboard">
             {/* Header */}
             <header className="dashboard-header">
-                <h1 className='logo'>Graphi-Kai</h1>
+                <img src={Logo}
+                    style={{
+                        height: 100,
+                        width: 200
+                    }}
+                />
                 <div className="header-right">
                     <button onClick={() => navigate('/profile')} className="btn-profile">
                         {user?.username}
@@ -142,7 +147,7 @@ const Dashboard = () => {
                 </div>
             </header>
 
-            {/* Filtres et recherche */}
+            {/* Filters and search */}
             <div className="dashboard-controls">
                 <div className="filters">
                     <button
@@ -150,42 +155,42 @@ const Dashboard = () => {
                         onClick={() => setFilter('all')}
                         data-status="all"
                     >
-                        Tous
+                        All
                     </button>
                     <button
-                        className={filter === 'En cours' ? 'active' : ''}
-                        onClick={() => setFilter('En cours')}
-                        data-status="En cours"
+                        className={filter === 'Watching' ? 'active' : ''}
+                        onClick={() => setFilter('Watching')}
+                        data-status="Watching"
                     >
-                        En cours
+                        Watching
                     </button>
                     <button
-                        className={filter === 'A voir' ? 'active' : ''}
-                        onClick={() => setFilter('A voir')}
-                        data-status="A voir"
+                        className={filter === 'To Watch' ? 'active' : ''}
+                        onClick={() => setFilter('To Watch')}
+                        data-status="To Watch"
                     >
-                        À voir
+                        To Watch
                     </button>
                     <button
-                        className={filter === 'Terminé' ? 'active' : ''}
-                        onClick={() => setFilter('Terminé')}
-                        data-status="Terminé"
+                        className={filter === 'Completed' ? 'active' : ''}
+                        onClick={() => setFilter('Completed')}
+                        data-status="Completed"
                     >
-                        Terminé
+                        Completed
                     </button>
                     <button
-                        className={filter === 'En pause' ? 'active' : ''}
-                        onClick={() => setFilter('En pause')}
-                        data-status="En pause"
+                        className={filter === 'On Hold' ? 'active' : ''}
+                        onClick={() => setFilter('On Hold')}
+                        data-status="On Hold"
                     >
-                        En pause
+                        On Hold
                     </button>
                     <button
-                        className={filter === 'Abandonné' ? 'active' : ''}
-                        onClick={() => setFilter('Abandonné')}
-                        data-status="Abandonné"
+                        className={filter === 'Dropped' ? 'active' : ''}
+                        onClick={() => setFilter('Dropped')}
+                        data-status="Dropped"
                     >
-                        Abandonné
+                        Dropped
                     </button>
                 </div>
 
@@ -193,26 +198,26 @@ const Dashboard = () => {
                     <Search color='gray' size={16} />
                     <input
                         type="text"
-                        placeholder="Rechercher un anime..."
+                        placeholder="Search for an anime..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
 
                 <button className="btn-add" onClick={() => navigate('/add-anime')}>
-                    + Ajouter un anime
+                    + Add Anime
                 </button>
             </div>
 
-            {/* Liste des animes */}
+            {/* Anime list */}
             <div className="animes-container">
                 {loading ? (
-                    <div className="loading">Chargement...</div>
+                    <div className="loading">Loading...</div>
                 ) : filteredAnimes.length === 0 ? (
                     <div className="empty-state">
-                        <p>Aucun anime trouvé</p>
+                        <p>No anime found</p>
                         <button className="btn-primary" onClick={() => navigate('/add-anime')}>
-                            Ajouter votre premier anime
+                            Add your first anime
                         </button>
                     </div>
                 ) : (
@@ -253,28 +258,28 @@ const Dashboard = () => {
                                             <button
                                                 className="btn-edit"
                                                 onClick={() => navigate(`/edit-anime/${anime._id}`)}
-                                                title="Modifier"
+                                                title="Edit"
                                             >
                                                 <Edit size={18} />
                                             </button>
                                             <button
                                                 className="btn-pause"
                                                 onClick={() => handlePause(anime._id)}
-                                                title="Mettre en pause"
+                                                title="Put on hold"
                                             >
                                                 <Pause size={18} />
                                             </button>
                                             <button
                                                 className="btn-abandon"
                                                 onClick={() => handleAbandon(anime._id)}
-                                                title="Abandonner"
+                                                title="Drop"
                                             >
                                                 <X size={18} />
                                             </button>
                                             <button
                                                 className="btn-delete"
                                                 onClick={() => handleDelete(anime._id)}
-                                                title="Supprimer"
+                                                title="Delete"
                                             >
                                                 <Trash2 size={18} />
                                             </button>

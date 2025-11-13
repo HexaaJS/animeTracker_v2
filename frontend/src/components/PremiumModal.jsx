@@ -19,11 +19,11 @@ const PremiumModal = ({ isOpen, onClose, username }) => {
     };
 
     const features = [
-        'Accès à 20+ thèmes exclusifs',
-        'Nouveaux thèmes ajoutés régulièrement',
-        'Paiement unique à vie',
-        'Support prioritaire',
-        'Aucun abonnement récurrent'
+        'Access to 20+ exclusive themes',
+        'New themes added regularly',
+        'One-time lifetime payment',
+        'Priority support',
+        'No recurring subscription'
     ];
 
     return (
@@ -35,14 +35,14 @@ const PremiumModal = ({ isOpen, onClose, username }) => {
 
                 <div className="modal-header">
                     <Sparkles className="sparkle-icon" size={48} />
-                    <h2>Débloquez Premium</h2>
-                    <p className="modal-subtitle">Accédez à tous les thèmes exclusifs</p>
+                    <h2>Unlock Premium</h2>
+                    <p className="modal-subtitle">Access all exclusive themes</p>
                 </div>
 
                 <div className="modal-content">
                     <div className="price-tag">
-                        <span className="price-amount">4.99€</span>
-                        <span className="price-label">Paiement unique</span>
+                        <span className="price-amount">€4.99</span>
+                        <span className="price-label">One-time payment</span>
                     </div>
 
                     <ul className="features-list">
@@ -62,18 +62,18 @@ const PremiumModal = ({ isOpen, onClose, username }) => {
                         {loading ? (
                             <>
                                 <div className="spinner"></div>
-                                Redirection vers le paiement...
+                                Redirecting to payment...
                             </>
                         ) : (
                             <>
                                 <Sparkles size={20} />
-                                Débloquer maintenant
+                                Unlock now
                             </>
                         )}
                     </button>
 
                     <p className="payment-secure">
-                        🔒 Paiement sécurisé par Stripe
+                        🔒 Secure payment by Stripe
                     </p>
                 </div>
             </div>

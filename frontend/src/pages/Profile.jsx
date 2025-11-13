@@ -12,7 +12,7 @@ import { Crown } from 'lucide-react';
 import PremiumModal from '../components/PremiumModal';
 import { checkPaymentStatus } from '../services/premiumService';
 
-// Slice actif “zoomé”
+// Active "zoomed" slice
 const renderActiveShape = (props) => {
     const {
         cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill,
@@ -29,7 +29,7 @@ const renderActiveShape = (props) => {
                 endAngle={endAngle}
                 fill={fill}
             />
-            {/* petit halo */}
+            {/* small halo */}
             <Sector
                 cx={cx}
                 cy={cy}
@@ -52,7 +52,7 @@ const Profile = () => {
     const [animes, setAnimes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(-1);
-    const [enCoursStops, setEnCoursStops] = useState(["#667eea", "#764ba2"]);
+    const [watchingStops, setWatchingStops] = useState(["#667eea", "#764ba2"]);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
 
     useEffect(() => {
@@ -63,21 +63,21 @@ const Profile = () => {
     const checkPaymentStatus = () => {
         const paymentStatus = searchParams.get('payment');
         if (paymentStatus === 'success') {
-            alert('🎉 Paiement réussi ! Premium activé !');
-            setSearchParams({}); // Nettoyer l'URL
-            window.location.reload(); // Recharger pour mettre à jour isPremium
+            alert('🎉 Payment successful! Premium activated!');
+            setSearchParams({}); // Clean URL
+            window.location.reload(); // Reload to update isPremium
         } else if (paymentStatus === 'cancelled') {
-            alert('❌ Paiement annulé');
+            alert('❌ Payment cancelled');
             setSearchParams({});
         }
     };
 
     useEffect(() => {
-        // essaie de lire --gradient (ex: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)")
+        // try to read --gradient (ex: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)")
         const cssGrad = getComputedStyle(document.documentElement).getPropertyValue('--gradient')?.trim() || '';
         const matches = cssGrad.match(/#([0-9a-f]{3,8})/gi);
         if (matches && matches.length >= 2) {
-            setEnCoursStops([matches[0], matches[1]]);
+            setWatchingStops([matches[0], matches[1]]);
         }
     }, [currentTheme]);
 
@@ -86,14 +86,14 @@ const Profile = () => {
             const response = await getAllAnimesForStats();
             setAnimes(response.data);
         } catch (error) {
-            console.error('Erreur lors du chargement des animes:', error);
+            console.error('Error loading animes:', error);
         } finally {
             setLoading(false);
         }
     };
 
     const handleLogout = () => {
-        if (window.confirm('Es-tu sûr de vouloir te déconnecter ?')) {
+        if (window.confirm('Are you sure you want to log out?')) {
             logout();
             navigate('/login');
         }
@@ -101,31 +101,31 @@ const Profile = () => {
 
     const copyId = () => {
         navigator.clipboard.writeText(user.userId);
-        alert('ID copié dans le presse-papiers !');
+        alert('ID copied to clipboard!');
     };
 
-    // Calcul des stats
+    // Stats calculation
     const stats = {
         total: animes.length,
-        enCours: animes.filter(a => a.status === 'En cours').length,
-        termine: animes.filter(a => a.status === 'Terminé').length,
-        aVoir: animes.filter(a => a.status === 'A voir').length,
-        enPause: animes.filter(a => a.status === 'En pause').length,
-        abandonne: animes.filter(a => a.status === 'Abandonné').length,
-        episodesVus: animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0),
-        moyenneNote: animes.filter(a => a.rating).length > 0
+        watching: animes.filter(a => a.status === 'Watching').length,
+        completed: animes.filter(a => a.status === 'Completed').length,
+        toWatch: animes.filter(a => a.status === 'To Watch').length,
+        onHold: animes.filter(a => a.status === 'On Hold').length,
+        dropped: animes.filter(a => a.status === 'Dropped').length,
+        episodesWatched: animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0),
+        averageRating: animes.filter(a => a.rating).length > 0
             ? (animes.reduce((sum, a) => sum + (a.rating || 0), 0) / animes.filter(a => a.rating).length).toFixed(1)
             : 0,
-        tempsEstime: Math.round(animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0) * 24 / 60) // 24min/ep
+        estimatedTime: Math.round(animes.reduce((sum, a) => sum + (a.currentEpisode || 0), 0) * 24 / 60) // 24min/ep
     };
 
-    // Données pour le graphique (on met des couleurs simples en fallback)
+    // Data for chart (simple fallback colors)
     const statusData = [
-        { name: 'En cours', value: stats.enCours, color: enCoursStops[0] },        // remplacé par url(#grad-en-cours)
-        { name: 'Terminé', value: stats.termine, color: '#22c55e' },               // remplacé par url(#grad-termine)
-        { name: 'À voir', value: stats.aVoir, color: '#FF9800' },
-        { name: 'En pause', value: stats.enPause, color: '#9E9E9E' },
-        { name: 'Abandonné', value: stats.abandonne, color: '#F44336' }
+        { name: 'Watching', value: stats.watching, color: watchingStops[0] },        // replaced by url(#grad-watching)
+        { name: 'Completed', value: stats.completed, color: '#22c55e' },              // replaced by url(#grad-completed)
+        { name: 'To Watch', value: stats.toWatch, color: '#FF9800' },
+        { name: 'On Hold', value: stats.onHold, color: '#9E9E9E' },
+        { name: 'Dropped', value: stats.dropped, color: '#F44336' }
     ].filter(item => item.value > 0);
 
     // Top 5 genres
@@ -142,15 +142,15 @@ const Profile = () => {
         .map(([name, value]) => ({ name, value }));
 
     if (loading) {
-        return <div className="loading">Chargement...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
-    // style helper pour les barres "Détails par statut"
+    // style helper for "Details by status" bars
     const getBarBackground = (status) => {
-        if (status.name === 'En cours') {
-            return { backgroundImage: `linear-gradient(90deg, ${enCoursStops[0]} 0%, ${enCoursStops[1]} 100%)` };
+        if (status.name === 'Watching') {
+            return { backgroundImage: `linear-gradient(90deg, ${watchingStops[0]} 0%, ${watchingStops[1]} 100%)` };
         }
-        if (status.name === 'Terminé') {
+        if (status.name === 'Completed') {
             return { backgroundImage: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)' };
         }
         return { backgroundColor: status.color };
@@ -160,10 +160,10 @@ const Profile = () => {
         <div className="profile-page">
             <div className="profile-container-large">
                 <button onClick={() => navigate('/')} className="btn-back">
-                    ← Retour
+                    ← Back
                 </button>
 
-                {/* Header avec avatar et infos */}
+                {/* Header with avatar and info */}
                 <div className="profile-header">
                     <div className="profile-avatar">
                         {user?.username?.charAt(0).toUpperCase()}
@@ -177,7 +177,7 @@ const Profile = () => {
                             </button>
                         </div>
                         <p className="member-since">
-                            Membre depuis {new Date(user?.createdAt).toLocaleDateString('fr-FR', {
+                            Member since {new Date(user?.createdAt).toLocaleDateString('en-US', {
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric'
@@ -186,18 +186,18 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Sélecteur de thème */}
+                {/* Theme selector */}
                 <div className="theme-section">
-                    <h3>Thème</h3>
+                    <h3>Theme</h3>
                     {!user?.isPremium ? (
                         <button className="premium-banner-btn" onClick={() => setShowPremiumModal(true)}>
                             <Crown size={20} />
-                            <span>Débloquez 20+ thèmes exclusifs avec Premium</span>
+                            <span>Unlock 20+ exclusive themes with Premium</span>
                         </button>
                     ) : (
                         <div className="premium-badge">
                             <Crown size={18} />
-                            <span>Premium Actif</span>
+                            <span>Premium Active</span>
                         </div>
                     )}
                     <div className="theme-dropdown">
@@ -239,40 +239,40 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Stats principales */}
+                {/* Main stats */}
                 <div className="stats-grid">
                     <div className="stat-card">
                         <div className="stat-value">{stats.total}</div>
-                        <div className="stat-label">Animes totaux</div>
+                        <div className="stat-label">Total Animes</div>
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-value">{stats.episodesVus}</div>
-                        <div className="stat-label">Épisodes vus</div>
+                        <div className="stat-value">{stats.episodesWatched}</div>
+                        <div className="stat-label">Episodes Watched</div>
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-value">{stats.tempsEstime}h</div>
-                        <div className="stat-label">Temps passé</div>
+                        <div className="stat-value">{stats.estimatedTime}h</div>
+                        <div className="stat-label">Time Spent</div>
                     </div>
                 </div>
 
-                {/* Graphiques */}
+                {/* Charts */}
                 <div className="charts-container">
-                    {/* Graphique en anneau - Statuts */}
+                    {/* Donut chart - Status */}
                     <div className="chart-card">
-                        <h3>Répartition par statut</h3>
+                        <h3>Distribution by Status</h3>
                         {statusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
-                                    {/* Définition des dégradés SVG */}
+                                    {/* SVG gradient definitions */}
                                     <defs>
-                                        <linearGradient id="grad-en-cours" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor={enCoursStops[0]} />
-                                            <stop offset="100%" stopColor={enCoursStops[1]} />
+                                        <linearGradient id="grad-watching" x1="0" y1="0" x2="1" y2="0">
+                                            <stop offset="0%" stopColor={watchingStops[0]} />
+                                            <stop offset="100%" stopColor={watchingStops[1]} />
                                         </linearGradient>
 
-                                        <linearGradient id="grad-termine" x1="0" y1="0" x2="1" y2="0">
+                                        <linearGradient id="grad-completed" x1="0" y1="0" x2="1" y2="0">
                                             <stop offset="0%" stopColor="#22c55e" />
                                             <stop offset="100%" stopColor="#16a34a" />
                                         </linearGradient>
@@ -287,7 +287,7 @@ const Profile = () => {
                                         paddingAngle={5}
                                         dataKey="value"
                                         label={({ name, value }) => `${name}: ${value}`}
-                                        // Anim d’arrivée
+                                        // Entry animation
                                         isAnimationActive
                                         animationDuration={400}
                                         animationEasing="ease-out"
@@ -302,10 +302,10 @@ const Profile = () => {
                                                 key={`cell-${index}`}
                                                 style={{ cursor: 'pointer' }}
                                                 fill={
-                                                    entry.name === 'En cours'
-                                                        ? 'url(#grad-en-cours)'
-                                                        : entry.name === 'Terminé'
-                                                            ? 'url(#grad-termine)'
+                                                    entry.name === 'Watching'
+                                                        ? 'url(#grad-watching)'
+                                                        : entry.name === 'Completed'
+                                                            ? 'url(#grad-completed)'
                                                             : entry.color
                                                 }
                                             />
@@ -315,13 +315,13 @@ const Profile = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
-                            <p className="no-data">Aucune donnée disponible</p>
+                            <p className="no-data">No data available</p>
                         )}
                     </div>
 
                     {/* Top genres */}
                     <div className="chart-card">
-                        <h3>Top 5 genres préférés</h3>
+                        <h3>Top 5 Favorite Genres</h3>
                         {topGenres.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={topGenres}>
@@ -333,14 +333,14 @@ const Profile = () => {
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <p className="no-data">Aucun genre enregistré</p>
+                            <p className="no-data">No genres recorded</p>
                         )}
                     </div>
                 </div>
 
-                {/* Détails par statut */}
+                {/* Details by status */}
                 <div className="status-details">
-                    <h3>📋 Détails par statut</h3>
+                    <h3>📋 Details by Status</h3>
                     <div className="status-bars">
                         {statusData.map((status) => (
                             <div key={status.name} className="status-bar-item">
@@ -362,9 +362,9 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Bouton déconnexion */}
+                {/* Logout button */}
                 <button onClick={handleLogout} className="btn-logout-profile">
-                    Déconnexion
+                    Log Out
                 </button>
             </div>
 
@@ -379,4 +379,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

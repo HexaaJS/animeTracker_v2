@@ -16,7 +16,7 @@ const AddAnime = () => {
     const [formData, setFormData] = useState({
         title: '',
         coverImage: '',
-        status: 'A voir',
+        status: 'To Watch',
         currentEpisode: 0,
         totalEpisodes: '',
         currentSeason: 1,
@@ -26,9 +26,9 @@ const AddAnime = () => {
         notes: ''
     });
 
-    // Recherche en temps réel quand l'utilisateur tape
+    // Real-time search when user types
     useEffect(() => {
-        // Ne pas chercher si un anime a été sélectionné
+        // Don't search if an anime has been selected
         if (hasSelectedAnime) return;
 
         const delaySearch = setTimeout(() => {
@@ -38,12 +38,12 @@ const AddAnime = () => {
                 setSearchResults([]);
                 setShowResults(false);
             }
-        }, 500); // Attendre 500ms après que l'utilisateur arrête de taper
+        }, 500); // Wait 500ms after user stops typing
 
         return () => clearTimeout(delaySearch);
     }, [formData.title, hasSelectedAnime]);
 
-    // Rechercher des animes via l'API
+    // Search for animes via API
     const handleSearch = async (query) => {
         setSearching(true);
 
@@ -52,14 +52,14 @@ const AddAnime = () => {
             setSearchResults(response.data || []);
             setShowResults(true);
         } catch (err) {
-            console.error('Erreur lors de la recherche:', err);
+            console.error('Error during search:', err);
             setSearchResults([]);
         } finally {
             setSearching(false);
         }
     };
 
-    // Sélectionner un anime depuis les résultats
+    // Select an anime from results
     const handleSelectAnime = (anime) => {
         const formatted = formatAnimeFromJikan(anime);
         setFormData({
@@ -69,23 +69,23 @@ const AddAnime = () => {
             totalEpisodes: formatted.totalEpisodes || '',
             rating: formatted.rating || '',
             genre: formatted.genre.join(', ')
-            // notes: pas de remplissage automatique, l'utilisateur écrit ses propres notes
+            // notes: no automatic fill, user writes their own notes
         });
         setShowResults(false);
         setSearchResults([]);
-        setHasSelectedAnime(true); // Empêcher les recherches automatiques
+        setHasSelectedAnime(true); // Prevent automatic searches
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        // Si l'utilisateur modifie le titre après une sélection, réactiver la recherche
+        // If user modifies title after selection, reactivate search
         if (name === 'title' && hasSelectedAnime) {
             setHasSelectedAnime(false);
         }
 
-        // Si le statut passe à "Terminé", mettre l'épisode actuel = total
-        if (name === 'status' && value === 'Terminé') {
+        // If status changes to "Completed", set current episode = total
+        if (name === 'status' && value === 'Completed') {
             setFormData({
                 ...formData,
                 [name]: value,
@@ -105,7 +105,7 @@ const AddAnime = () => {
         setLoading(true);
 
         if (!formData.title.trim()) {
-            setError('Le titre est requis');
+            setError('Title is required');
             setLoading(false);
             return;
         }
@@ -127,7 +127,7 @@ const AddAnime = () => {
             await createAnime(animeData);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de l\'ajout de l\'anime');
+            setError(err.response?.data?.message || 'Error adding anime');
         } finally {
             setLoading(false);
         }
@@ -137,9 +137,9 @@ const AddAnime = () => {
         <div className="form-page">
             <div className="form-container">
                 <div className="form-header">
-                    <h1>🎌 Ajouter un anime</h1>
+                    <h1>🎌 Add Anime</h1>
                     <button onClick={() => navigate('/')} className="btn-back">
-                        ← Retour
+                        ← Back
                     </button>
                 </div>
 
@@ -148,7 +148,7 @@ const AddAnime = () => {
                 <form onSubmit={handleSubmit} className="anime-form">
                     <div className="form-row">
                         <div className="form-group search-group">
-                            <label htmlFor="title">Titre * (tapez pour rechercher)</label>
+                            <label htmlFor="title">Title * (type to search)</label>
                             <input
                                 type="text"
                                 id="title"
@@ -161,10 +161,10 @@ const AddAnime = () => {
                                 autoComplete="off"
                             />
 
-                            {/* Résultats de recherche en dropdown */}
+                            {/* Search results dropdown */}
                             {showResults && searchResults.length > 0 && (
                                 <div className="search-dropdown">
-                                    {searching && <div className="dropdown-loading">Recherche...</div>}
+                                    {searching && <div className="dropdown-loading">Searching...</div>}
                                     {searchResults.slice(0, 5).map((anime) => (
                                         <div
                                             key={anime.mal_id}
@@ -179,7 +179,7 @@ const AddAnime = () => {
                                             <div className="dropdown-info">
                                                 <div className="dropdown-title">{anime.title}</div>
                                                 <div className="dropdown-meta">
-                                                    {anime.type} • {anime.episodes || '?'} ép.
+                                                    {anime.type} • {anime.episodes || '?'} ep.
                                                     {anime.score && ` • ⭐ ${anime.score}`}
                                                 </div>
                                             </div>
@@ -190,7 +190,7 @@ const AddAnime = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="status">Statut</label>
+                            <label htmlFor="status">Status</label>
                             <select
                                 id="status"
                                 name="status"
@@ -198,25 +198,24 @@ const AddAnime = () => {
                                 onChange={handleChange}
                                 disabled={loading}
                             >
-                                <option value="A voir">À voir</option>
-                                <option value="En cours">En cours</option>
-                                <option value="Terminé">Terminé</option>
-                                <option value="En pause">En pause</option>
-                                <option value="Abandonné">Abandonné</option>
+                                <option value="To Watch">To Watch</option>
+                                <option value="Watching">Watching</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Dropped">Dropped</option>
                             </select>
                         </div>
                     </div>
 
-
                     <div className="form-group">
-                        <label htmlFor="notes">Notes personnelles</label>
+                        <label htmlFor="notes">Personal Notes</label>
                         <textarea
                             id="notes"
                             name="notes"
                             value={formData.notes}
                             onChange={handleChange}
                             rows="4"
-                            placeholder="Vos impressions, commentaires..."
+                            placeholder="Your impressions, comments..."
                             disabled={loading}
                             autoComplete="off"
                         />
@@ -229,10 +228,10 @@ const AddAnime = () => {
                             className="btn-secondary"
                             disabled={loading}
                         >
-                            Annuler
+                            Cancel
                         </button>
                         <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? 'Ajout en cours...' : 'Ajouter l\'anime'}
+                            {loading ? 'Adding...' : 'Add Anime'}
                         </button>
                     </div>
                 </form>
@@ -241,4 +240,4 @@ const AddAnime = () => {
     );
 };
 
-export default AddAnime
+export default AddAnime;

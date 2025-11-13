@@ -8,7 +8,7 @@ const animeSchema = new mongoose.Schema({
     },
     title: {
         type: String,
-        required: [true, 'Le titre est requis'],
+        required: [true, 'Title is required'],
         trim: true
     },
     coverImage: {
@@ -17,8 +17,8 @@ const animeSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['A voir', 'En cours', 'Terminé', 'Abandonné', 'En pause'],
-        default: 'A voir'
+        enum: ['To Watch', 'Watching', 'Completed', 'Dropped', 'On Hold'],
+        default: 'To Watch'
     },
     currentEpisode: {
         type: Number,
@@ -69,7 +69,7 @@ const animeSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Index pour optimiser les recherches
+// Index to optimize searches
 animeSchema.index({ user: 1, status: 1 });
 animeSchema.index({ user: 1, title: 'text' });
 
