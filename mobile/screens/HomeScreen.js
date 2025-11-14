@@ -6,16 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
-  Alert,
-  Image
+  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import animeService from '../services/animeService';
-import ProgressBar from '../components/ProgressBar';
+import AnimeCard from '../components/AnimeCard';
 
 const HomeScreen = ({ navigation }) => {
   const [animes, setAnimes] = useState([]);
@@ -56,7 +54,10 @@ const HomeScreen = ({ navigation }) => {
 
   const handleProgressUpdate = async (id, currentEpisode) => {
     try {
-      const response = await animeService.updateProgress(id, currentEpisode, null);
+      // updateProgress attend un objet progressData
+      const response = await animeService.updateProgress(id, { 
+        currentEpisode: parseInt(currentEpisode) 
+      });
       const updated = response.data;
 
       const total = Number(updated.totalEpisodes) || 0;
@@ -75,7 +76,7 @@ const HomeScreen = ({ navigation }) => {
 
       let finalDoc = updated;
       if (updated.status !== targetStatus) {
-        const statusResponse = await animeService.updateStatus(id, targetStatus);
+        const statusResponse = await animeService.updateAnime(id, { status: targetStatus });
         finalDoc = statusResponse.data;
       }
 
@@ -89,133 +90,34 @@ const HomeScreen = ({ navigation }) => {
 
   const handlePause = async (id) => {
     try {
-      const response = await animeService.updateStatus(id, 'On Hold');
+      const response = await animeService.updateAnime(id, { status: 'On Hold' });
       setAnimes(animes.map(anime =>
         anime._id === id ? response.data : anime
       ));
     } catch (error) {
       console.error('Error pausing:', error);
-      Alert.alert('Error', 'Failed to pause anime');
     }
   };
 
   const handleDrop = async (id) => {
-    Alert.alert(
-      'Drop Anime',
-      'Are you sure you want to drop this anime?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Drop',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await animeService.updateStatus(id, 'Dropped');
-              setAnimes(animes.map(anime =>
-                anime._id === id ? response.data : anime
-              ));
-            } catch (error) {
-              console.error('Error dropping:', error);
-              Alert.alert('Error', 'Failed to drop anime');
-            }
-          }
-        }
-      ]
-    );
-  };
-
-  const handleDelete = async (id) => {
-    Alert.alert(
-      'Delete Anime',
-      'Are you sure you want to delete this anime?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await animeService.deleteAnime(id);
-              setAnimes(animes.filter(anime => anime._id !== id));
-            } catch (error) {
-              console.error('Error deleting:', error);
-              Alert.alert('Error', 'Failed to delete anime');
-            }
-          }
-        }
-      ]
-    );
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Watching': return '#4CAF50';
-      case 'Completed': return '#2196F3';
-      case 'To Watch': return '#FF9800';
-      case 'On Hold': return '#9E9E9E';
-      case 'Dropped': return '#F44336';
-      default: return '#9E9E9E';
+    try {
+      const response = await animeService.updateAnime(id, { status: 'Dropped' });
+      setAnimes(animes.map(anime =>
+        anime._id === id ? response.data : anime
+      ));
+    } catch (error) {
+      console.error('Error dropping:', error);
     }
   };
 
-  const renderAnimeCard = ({ item }) => (
-    <View style={styles.card}>
-      {item.imageUrl && (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.animeImage}
-          resizeMode="cover"
-        />
-      )}
-
-      <View style={styles.cardContent}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-            <Text style={styles.statusText}>{item.status}</Text>
-          </View>
-        </View>
-
-        {item.notes && (
-          <Text style={styles.notes} numberOfLines={2}>
-            {item.notes}
-          </Text>
-        )}
-
-        <ProgressBar
-          currentEpisode={item.currentEpisode || 0}
-          totalEpisodes={item.totalEpisodes}
-          onUpdate={handleProgressUpdate}
-          animeId={item._id}
-        />
-
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handlePause(item._id)}
-          >
-            <Ionicons name="pause-outline" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleDrop(item._id)}
-          >
-            <Ionicons name="close-outline" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton]}
-            onPress={() => handleDelete(item._id)}
-          >
-            <Ionicons name="trash-outline" size={20} color="#F44336" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
+  const handleDelete = async (id) => {
+    try {
+      await animeService.deleteAnime(id);
+      setAnimes(animes.filter(anime => anime._id !== id));
+    } catch (error) {
+      console.error('Error deleting:', error);
+    }
+  };
 
   const filters = [
     { label: 'All', value: 'all' },
@@ -283,7 +185,16 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={animes}
-          renderItem={renderAnimeCard}
+          renderItem={({ item }) => (
+            <AnimeCard
+              anime={item}
+              onProgressUpdate={handleProgressUpdate}
+              onPause={handlePause}
+              onDrop={handleDrop}
+              onDelete={handleDelete}
+              activeTheme={activeTheme}
+            />
+          )}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContainer}
           refreshControl={
@@ -346,72 +257,6 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    marginBottom: 15,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  animeImage: {
-    width: '100%',
-    height: 200,
-  },
-  cardContent: {
-    padding: 15,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    flex: 1,
-    marginRight: 10,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  notes: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-    marginBottom: 10,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  actionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  deleteButton: {
-    backgroundColor: '#FFEBEE',
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -432,4 +277,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

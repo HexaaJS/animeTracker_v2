@@ -2,8 +2,9 @@ import api from './api';
 
 const animeService = {
   // Récupérer tous les animes de l'utilisateur
-  getAnimes: async () => {
-    const response = await api.get('/api/animes');
+  getAnimes: async (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    const response = await api.get(`/api/animes${params ? `?${params}` : ''}`);
     return response.data;
   },
 
@@ -13,7 +14,7 @@ const animeService = {
     return response.data;
   },
 
-  // Ajouter un anime
+  // Ajouter un anime (createAnime)
   addAnime: async (animeData) => {
     const response = await api.post('/api/animes', animeData);
     return response.data;
@@ -31,18 +32,21 @@ const animeService = {
     return response.data;
   },
 
-  // Mettre à jour le statut d'un anime
-  updateStatus: async (id, status) => {
-    const response = await api.patch(`/api/animes/${id}/status`, { status });
+  // Mettre à jour la progression
+  updateProgress: async (id, progressData) => {
+    const response = await api.patch(`/api/animes/${id}/progress`, progressData);
     return response.data;
   },
 
-  // Mettre à jour la progression
-  updateProgress: async (id, currentEpisode, totalEpisodes) => {
-    const response = await api.patch(`/api/animes/${id}/progress`, {
-      currentEpisode,
-      totalEpisodes
-    });
+  // Obtenir les statistiques
+  getStats: async () => {
+    const response = await api.get('/api/animes/stats');
+    return response.data;
+  },
+
+  // Rechercher des animes
+  searchAnimes: async (query) => {
+    const response = await api.get(`/api/animes/search?q=${encodeURIComponent(query)}`);
     return response.data;
   }
 };

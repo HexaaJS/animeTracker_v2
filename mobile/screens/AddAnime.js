@@ -93,7 +93,7 @@ const AddAnime = ({ navigation }) => {
       const animeData = {
         title: selectedAnime.title,
         malId: selectedAnime.mal_id,
-        imageUrl: selectedAnime.images?.jpg?.image_url || selectedAnime.images?.jpg?.large_image_url,
+        coverImage: selectedAnime.images?.jpg?.image_url || selectedAnime.images?.jpg?.large_image_url,
         totalEpisodes: selectedAnime.episodes || 0,
         currentEpisode: parseInt(formData.currentEpisode) || 0,
         status: formData.status,
@@ -287,27 +287,6 @@ const AddAnime = ({ navigation }) => {
                 ))}
               </View>
 
-              {/* Current Episode */}
-              <Text style={styles.formLabel}>Current Episode</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="0"
-                placeholderTextColor="#999"
-                value={formData.currentEpisode.toString()}
-                onChangeText={(text) => setFormData({ ...formData, currentEpisode: text })}
-                keyboardType="numeric"
-              />
-
-              {/* Personal Rating */}
-              <Text style={styles.formLabel}>Your Rating (optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="1-10"
-                placeholderTextColor="#999"
-                value={formData.rating}
-                onChangeText={(text) => setFormData({ ...formData, rating: text })}
-                keyboardType="decimal-pad"
-              />
 
               {/* Notes */}
               <Text style={styles.formLabel}>Personal Notes (optional)</Text>

@@ -15,6 +15,7 @@ import Register from './screens/RegisterScreen';
 import Home from './screens/HomeScreen';
 import AddAnime from './screens/AddAnime';
 import Profile from './screens/ProfileScreen';
+import Themes from './screens/Themes';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -103,8 +104,10 @@ function AppNavigator() {
             <Stack.Screen name="Register" component={Register} />
           </>
         ) : (
-          // App Stack avec Tabs
-          <Stack.Screen name="Main" component={MainTabs} />
+    <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="Themes" component={Themes} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -16,7 +16,7 @@ const jikanService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Erreur recherche Jikan:', error);
+      console.error('Search error:', error);
       throw error;
     }
   },
@@ -27,7 +27,7 @@ const jikanService = {
       const response = await axios.get(`${JIKAN_BASE_URL}/anime/${malId}/full`);
       return response.data;
     } catch (error) {
-      console.error('Erreur détails Jikan:', error);
+      console.error('Details error:', error);
       throw error;
     }
   },
@@ -43,7 +43,7 @@ const jikanService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Erreur top Jikan:', error);
+      console.error('Top animes error:', error);
       throw error;
     }
   },
@@ -54,7 +54,7 @@ const jikanService = {
       const response = await axios.get(`${JIKAN_BASE_URL}/seasons/now`);
       return response.data;
     } catch (error) {
-      console.error('Erreur saison Jikan:', error);
+      console.error('Season error:', error);
       throw error;
     }
   }
