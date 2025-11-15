@@ -146,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: textColor }]}>🎌 My Animes</Text>
+        <Text style={[styles.headerTitle, { color: textColor }]}>My Animes</Text>
         <Text style={[styles.headerSubtitle, { color: textColor, opacity: 0.9 }]}>
           Welcome, {user?.username}!
         </Text>
