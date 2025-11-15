@@ -23,6 +23,9 @@ const HomeScreen = ({ navigation }) => {
   
   const { user } = useAuth();
   const { activeTheme } = useTheme();
+  
+  // Couleur de texte dynamique
+  const textColor = activeTheme.colors.textColor || '#FFFFFF';
 
   useEffect(() => {
     loadAnimes();
@@ -32,7 +35,6 @@ const HomeScreen = ({ navigation }) => {
     try {
       const response = await animeService.getAnimes();
       if (response.success) {
-        // Filter locally
         let filtered = response.data;
         if (filter !== 'all') {
           filtered = response.data.filter(anime => anime.status === filter);
@@ -54,7 +56,6 @@ const HomeScreen = ({ navigation }) => {
 
   const handleProgressUpdate = async (id, currentEpisode) => {
     try {
-      // updateProgress attend un objet progressData
       const response = await animeService.updateProgress(id, { 
         currentEpisode: parseInt(currentEpisode) 
       });
@@ -134,7 +135,7 @@ const HomeScreen = ({ navigation }) => {
         colors={[activeTheme.colors.primary, activeTheme.colors.secondary]}
         style={styles.container}
       >
-        <ActivityIndicator size="large" color="#FFFFFF" />
+        <ActivityIndicator size="large" color={textColor} />
       </LinearGradient>
     );
   }
@@ -145,8 +146,10 @@ const HomeScreen = ({ navigation }) => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🎌 My Animes</Text>
-        <Text style={styles.headerSubtitle}>Welcome, {user?.username}!</Text>
+        <Text style={[styles.headerTitle, { color: textColor }]}>🎌 My Animes</Text>
+        <Text style={[styles.headerSubtitle, { color: textColor, opacity: 0.9 }]}>
+          Welcome, {user?.username}!
+        </Text>
       </View>
 
       {/* Filters */}
@@ -158,12 +161,20 @@ const HomeScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.filterButton,
-                filter === item.value && [styles.filterButtonActive, { backgroundColor: activeTheme.colors.primary }]
+                filter === item.value && [
+                  styles.filterButtonActive,
+                  { 
+                    backgroundColor: 'rgba(255,255,255,0.3)',
+                    borderWidth: 2,
+                    borderColor: textColor
+                  }
+                ]
               ]}
               onPress={() => setFilter(item.value)}
             >
               <Text style={[
                 styles.filterText,
+                { color: textColor },
                 filter === item.value && styles.filterTextActive
               ]}>
                 {item.label}
@@ -178,9 +189,11 @@ const HomeScreen = ({ navigation }) => {
 
       {animes.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="film-outline" size={80} color="rgba(255,255,255,0.5)" />
-          <Text style={styles.emptyText}>No animes yet</Text>
-          <Text style={styles.emptySubtext}>Tap the + button to add your first anime!</Text>
+          <Ionicons name="film-outline" size={80} color={textColor} style={{ opacity: 0.5 }} />
+          <Text style={[styles.emptyText, { color: textColor }]}>No animes yet</Text>
+          <Text style={[styles.emptySubtext, { color: textColor, opacity: 0.8 }]}>
+            Tap the + button to add your first anime!
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -201,7 +214,7 @@ const HomeScreen = ({ navigation }) => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#FFFFFF"
+              tintColor={textColor}
             />
           }
         />
@@ -222,12 +235,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
   },
   filtersContainer: {
     marginBottom: 15,
@@ -236,22 +247,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   filterButton: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 10,
   },
   filterButtonActive: {
-    backgroundColor: '#FFFFFF',
+    // Styles dynamiques appliqués dans le JSX
   },
   filterText: {
-    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
   },
   filterTextActive: {
-    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   listContainer: {
     padding: 20,
@@ -266,13 +276,11 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginTop: 20,
     marginBottom: 10,
   },
   emptySubtext: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
   },
 });

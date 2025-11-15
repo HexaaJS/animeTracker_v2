@@ -35,6 +35,9 @@ const AddAnime = ({ navigation }) => {
   });
   
   const { activeTheme } = useTheme();
+  
+  // Couleur de texte dynamique
+  const textColor = activeTheme.colors.textColor || '#FFFFFF';
 
   // Auto-search when user types
   useEffect(() => {
@@ -181,8 +184,8 @@ const AddAnime = ({ navigation }) => {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>🔍 Add Anime</Text>
-            <Text style={styles.headerSubtitle}>Search and add to your list</Text>
+            <Text style={[styles.headerTitle, { color: textColor }]}>🔍 Add Anime</Text>
+            <Text style={[styles.headerSubtitle, { color: textColor, opacity: 0.9 }]}>Search and add to your list</Text>
           </View>
 
           {/* Search Bar */}
@@ -258,7 +261,7 @@ const AddAnime = ({ navigation }) => {
           {selectedAnime && (
             <View style={styles.formContainer}>
               {/* Status Selector */}
-              <Text style={styles.formLabel}>Status</Text>
+              <Text style={[styles.formLabel, { color: textColor }]}>Status</Text>
               <View style={styles.statusGrid}>
                 {statusOptions.map((option) => (
                   <TouchableOpacity
@@ -289,7 +292,7 @@ const AddAnime = ({ navigation }) => {
 
 
               {/* Notes */}
-              <Text style={styles.formLabel}>Personal Notes (optional)</Text>
+              <Text style={[styles.formLabel, { color: textColor }]}>Personal Notes (optional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Your impressions, comments..."
@@ -345,7 +348,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    // color removed
     marginBottom: 5,
   },
   headerSubtitle: {
@@ -469,7 +472,7 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    // color removed
     marginBottom: 10,
   },
   statusGrid: {
@@ -495,7 +498,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   statusTextActive: {
-    color: '#FFFFFF',
+    // color removed
   },
   input: {
     backgroundColor: '#FFFFFF',
@@ -518,7 +521,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addButtonText: {
-    color: '#FFFFFF',
+    // color removed
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
